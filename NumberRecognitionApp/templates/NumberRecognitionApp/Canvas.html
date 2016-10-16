@@ -1,0 +1,300 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <style>
+      .canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="canvasContainer">
+      <canvas id="drawingCanvas" class="canvas"></canvas>
+      <canvas id="borderCanvas" class="canvas"></canvas>
+      <canvas id="topCanvas" class="canvas" style="z-index:9999"></canvas>
+    </div>
+    <button id="resetCanvas">Reset</button>
+    <h3>Train data</h3>
+    <form>
+      Number:
+      <input type="text" name="digitNumber" id="digitNumber">
+      <button type="button" id="submitCanvas">Submit</button>
+    </form>
+    <div id="canvasValue"></div>
+  </body>
+  <script>
+    // classes declaration
+    function Vector2(x, y) {
+      this.x = (x === undefined)
+        ? 0
+        : x;
+      this.y = (y === undefined)
+        ? 0
+        : y;
+    }
+
+    Vector2.prototype = {
+
+      sqrMagnitudeTo: function (x, y) {
+        // assuming that x contains x and y as attribute
+        if (y === undefined) {
+          if (x.x === undefined || x.y === undefined) {
+            console.error('cannot get x and y value');
+          } else {
+            return this.sqrMagnitude(this.x, x.x, this.y, x.y);
+          }
+        } else { // if there are 2 inputs
+          return this.sqrMagnitude(this.x, x, this.y, y);
+        }
+      },
+
+      sqrMagnitude: function (x1, x2, y1, y2) {
+        return Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2);
+      },
+
+      set: function (x, y) {
+        // http://stackoverflow.com/questions/2100758/javascript-or-variable-assignment-explanation
+        this.x = +x || 0;
+        this.y = +y || 0;
+      },
+
+      lerpTo: function (x, y, t) {
+        return this.lerp(this.x, x, this.y, y, t);
+      },
+
+      lerp: function (x1, x2, y1, y2, t) {
+        return new Vector2(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t);
+      }
+    };
+  </script>
+  <script>
+    // changeable variable
+    var gridSizeX = 10;
+    var gridSizeY = 10;
+    var canvasWidth = 500;
+    var canvasHeight = 500;
+    var brushSize = [
+      [
+        1, 1
+      ],
+      [1, 1]
+    ];
+
+    // setting canvas container
+    var canvasContainer = document.getElementById("canvasContainer");
+    canvasContainer.style.position = 'relative';
+    canvasContainer.style.width = canvasWidth + 'px';
+    canvasContainer.style.height = canvasHeight + 'px';
+
+    var el = document.getElementById('drawingCanvas');
+    var el2 = document.getElementById('borderCanvas');
+    var hitBox = document.getElementById('topCanvas');
+
+    var pixelValueDiv = document.getElementById('canvasValue');
+
+    var ctx = el.getContext('2d');
+    var ctx2 = el2.getContext('2d');
+    var currentCtx = ctx;
+
+    var isDrawing;
+
+    var pixelList = [];
+    var pixelDrawn = {};
+
+    var pixelWidth;
+    var pixelHeight;
+
+    var previousMousePos = new Vector2();
+    var maxSqrMagnitude;
+
+    var storedData = [];
+    var digitNumberData = document.getElementById('digitNumber');
+
+    /* ================ INITIALIZATION ================ */
+
+    (function () {
+      // setting html content to all canvas because css width and height is not enough
+      var canvases = document.getElementsByClassName('canvas');
+
+      // set all canvas width and height
+      // canvases is not array so cannot call canvases.forEach
+      Array.prototype.forEach.call(canvases, function (val) {
+        val.setAttribute('width', val.clientWidth);
+        val.setAttribute('height', val.clientHeight);
+        val.style.width = canvasWidth + 'px';
+        val.style.height = canvasHeight + 'px';
+        val.width = canvasWidth;
+        val.height = canvasHeight;
+      });
+
+      pixelWidth = Math.round(canvasWidth / gridSizeX);
+      pixelHeight = Math.round(canvasHeight / gridSizeY);
+
+      maxSqrMagnitude = Vector2.prototype.sqrMagnitude(pixelWidth, 0, pixelHeight, 0);
+
+      // reset button
+      document.getElementById('resetCanvas').onclick = () => resetCanvas(currentCtx, updateDivValue);
+
+      // submit button
+      document.getElementById('submitCanvas').onclick = function () {
+        let val = parseInt(digitNumberData.value);
+
+        if (val) {
+          storedData.push(digitNumberData.value, getCanvasValue(currentCtx));
+          resetCanvas(currentCtx, updateDivValue);
+          digitNumberData.value = '';
+        }
+      };
+
+      // draw canvas
+      resetCanvas(currentCtx);
+
+      // get pixel list and draw border
+      for (let i = 0; i < gridSizeY; i++) {
+        for (let j = 0; j < gridSizeX; j++) {
+          pixelList.push([
+            j * pixelWidth,
+            i * pixelHeight
+          ]);
+
+          pixelDrawn[get1dIndex(j, i, true)] = 0;
+          drawBorder(ctx2, j * pixelWidth, i * pixelHeight, pixelWidth, pixelHeight);
+        }
+      }
+    })();
+
+    /* ================ FUNCTIONS ================ */
+
+    hitBox.onmousedown = function (e) {
+      // only left click
+      if (e.button == 0) {
+        isDrawing = true;
+        drawBrush(currentCtx, e.clientX, e.clientY, updateDivValue);
+        previousMousePos.x = e.clientX;
+        previousMousePos.y = e.clientY;
+      }
+    };
+
+    hitBox.onmousemove = function (e) {
+      if (isDrawing) {
+        drawInBetween(previousMousePos.x, e.clientX, previousMousePos.y, e.clientY);
+        drawBrush(currentCtx, e.clientX, e.clientY, updateDivValue);
+        previousMousePos.set(e.clientX, e.clientY);
+        // ctx.lineTo(e.clientX, e.clientY); ctx.stroke();
+      }
+    };
+
+    hitBox.onmouseup = function () {
+      isDrawing = false;
+      updateDivValue();
+    };
+
+    document.onmouseup = function () {
+      isDrawing = false;
+    };
+
+    function updateDivValue() {
+      pixelValueDiv.innerHTML = getCanvasValue(ctx);
+    }
+
+    function drawBrush(ctx, x, y, callback = null) {
+      // draw brush according to shape of the brush
+      brushSize.forEach(function (val, i) {
+        val.forEach(function (val, j) {
+          if (val) {
+            drawSquarePixel(ctx, x + j * pixelWidth, y + i * pixelHeight);
+          }
+        });
+      });
+
+      if (callback != null) {
+        callback();
+      }
+    }
+
+    // drawing square pixel function
+    function drawSquarePixel(ctx, x, y) {
+      var x2 = x - (x % pixelWidth);
+      var y2 = y - (y % pixelHeight);
+      var flatIndex = get1dIndex(x2, y2, false);
+
+      if (pixelDrawn[flatIndex] == 0) {
+        ctx.fillRect(x2, y2, pixelWidth, pixelHeight);
+        pixelDrawn[flatIndex] = 1;
+      }
+    }
+
+    function getCanvasValue(ctx) {
+      var arr = [];
+
+      pixelList.forEach(function (val) {
+        var imgData = ctx.getImageData(val[0], val[1], 1, 1).data;
+        var r = imgData[0];
+        var g = imgData[1];
+        var b = imgData[2];
+        var greyScale = (r + g + b) / 3 / 255;
+        arr.push(greyScale);
+      });
+
+      return arr;
+    }
+
+    function resetCanvas(ctx, callback = null) {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, el.width, el.height);
+      ctx.fillStyle = "white";
+
+      for (let key in pixelDrawn) {
+        pixelDrawn[key] = false;
+      }
+
+      if (callback != null) {
+        callback();
+      }
+    }
+
+    function drawBorder(ctx, x, y, width, height) {
+      ctx.strokeStyle = 'grey';
+      ctx.rect(x, y, width, height);
+      ctx.stroke();
+    }
+
+    // Return 1d index of 2d position
+    // Basically y * gridSizeX + x
+    // [0, 1, 2, 3, 4, 5]
+    // [6, 7, 8, 9, 10, 11]
+    function get1dIndex(x, y, gridValue = false) {
+      // if they are out of index, return -1
+      if (gridValue) {
+        return x >= gridSizeX || y >= gridSizeY
+          ? -1
+          : y * gridSizeX * pixelHeight + x * pixelWidth;
+      } else {
+        return x >= gridSizeX * pixelWidth || y >= gridSizeY * pixelHeight
+          ? -1
+          : y * gridSizeX + x;
+      }
+    }
+
+    // only draw the in between
+    // not drawing start and end
+    function drawInBetween(x1, x2, y1, y2) {
+      let distSqr = Vector2.prototype.sqrMagnitude(x1, x2, y1, y2);
+
+      if (distSqr > maxSqrMagnitude) {
+        let totalInBetween = Math.floor(distSqr / maxSqrMagnitude);
+        let increment = 1 / (totalInBetween + 1);
+        // console.log('total in between: ' + totalInBetween);
+
+        for (let i = 1; i <= totalInBetween; i++) {
+          let pos = Vector2.prototype.lerp(x1, x2, y1, y2, i * increment);
+          drawBrush(currentCtx, pos.x, pos.y);
+        }
+      }
+    }
+  </script>
+</html>
