@@ -1,0 +1,29 @@
+{% load static %}
+<html>
+  <head>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> -->
+    <script src="{% static 'num_recognition_app/js/canvas.js' %}" defer></script>
+    <style>
+      .canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvasContainer">
+      <canvas id="drawingCanvas" class="canvas"></canvas>
+      <canvas id="borderCanvas" class="canvas"></canvas>
+      <canvas id="topCanvas" class="canvas" style="z-index:9999"></canvas>
+    </div>
+    <button id="resetCanvas">Reset</button>
+    <h3>Train data</h3>
+    <form id="number-label">
+      Number:
+      <input type="text" name="digitNumber" id="digitNumber">
+      <button type="button" id="submitCanvas">Submit</button>
+    </form>
+    <div id="canvasValue"></div>
+  </body>
+</html>

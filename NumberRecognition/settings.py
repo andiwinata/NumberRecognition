@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'NumberRecognitionApp.apps.NumberrecognitionappConfig',
+    'num_recognition_app.apps.NumberRecognitionAppConfig',
     'rest_framework'
 ]
 
