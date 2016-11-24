@@ -96,14 +96,14 @@ let CanvasGrid = {
 
     // set all canvas width and height
     // canvases is not array so cannot call canvases.forEach
-    let canvasGrid = this;
+    let self = this;
     Array.prototype.forEach.call(canvases, function(val) {
       val.setAttribute('width', val.clientWidth);
       val.setAttribute('height', val.clientHeight);
-      val.style.width = canvasGrid.canvasWidth + 'px';
-      val.style.height = canvasGrid.canvasHeight + 'px';
-      val.width = canvasGrid.canvasWidth;
-      val.height = canvasGrid.canvasHeight;
+      val.style.width = self.canvasWidth + 'px';
+      val.style.height = self.canvasHeight + 'px';
+      val.width = self.canvasWidth;
+      val.height = self.canvasHeight;
     });
 
     this.bindEvent();
@@ -130,35 +130,35 @@ let CanvasGrid = {
    * @return {[type]} [description]
    */
   bindEvent: function() {
-    let canvasGrid = this;
+    let self = this;
 
     /**
      * Event listener for reset button
      */
     document.getElementById('resetCanvas').onclick =
-      () => canvasGrid.resetCanvas(canvasGrid.currentCtx, canvasGrid.updateDivValue.bind(canvasGrid)); // use bind to keep the have correct scope
+      () => self.resetCanvas(self.currentCtx, self.updateCanvasValueView.bind(self)); // use bind to keep the have correct scope
 
     /**
      * Event listener for canvases
      */
-    canvasGrid.hitBox.onmousedown = function(e) {
+    self.hitBox.onmousedown = function(e) {
       // only left click
       if (e.button == 0) {
-        canvasGrid.isDrawing = true;
-        canvasGrid.drawBrush(canvasGrid.currentCtx, e.clientX, e.clientY, canvasGrid.updateDivValue.bind(canvasGrid));
-        canvasGrid.previousMousePos.x = e.clientX;
-        canvasGrid.previousMousePos.y = e.clientY;
+        self.isDrawing = true;
+        self.drawBrush(self.currentCtx, e.clientX, e.clientY, self.updateCanvasValueView.bind(self));
+        self.previousMousePos.x = e.clientX;
+        self.previousMousePos.y = e.clientY;
       }
     };
 
     /**
      * Event listener for canvases
      */
-    canvasGrid.hitBox.onmousemove = function(e) {
-      if (canvasGrid.isDrawing) {
-        canvasGrid.drawInBetween(canvasGrid.previousMousePos.x, e.clientX, canvasGrid.previousMousePos.y, e.clientY);
-        canvasGrid.drawBrush(canvasGrid.currentCtx, e.clientX, e.clientY, canvasGrid.updateDivValue.bind(canvasGrid));
-        canvasGrid.previousMousePos.set(e.clientX, e.clientY);
+    self.hitBox.onmousemove = function(e) {
+      if (self.isDrawing) {
+        self.drawInBetween(self.previousMousePos.x, e.clientX, self.previousMousePos.y, e.clientY);
+        self.drawBrush(self.currentCtx, e.clientX, e.clientY, self.updateCanvasValueView.bind(self));
+        self.previousMousePos.set(e.clientX, e.clientY);
         // canvasGrid.ctx.lineTo(e.clientX, e.clientY); ctx.stroke();
       }
     };
@@ -166,33 +166,33 @@ let CanvasGrid = {
     /**
      * Event listener for canvases
      */
-    canvasGrid.hitBox.onmouseup = function() {
-      canvasGrid.isDrawing = false;
-      canvasGrid.updateDivValue();
+    self.hitBox.onmouseup = function() {
+      self.isDrawing = false;
+      self.updateCanvasValueView();
     };
 
     /**
      * Event listener for document
      */
     document.onmouseup = function() {
-      canvasGrid.isDrawing = false;
+      self.isDrawing = false;
     };
 
   },
 
   /* ================ FUNCTIONS ================ */
 
-  updateDivValue: function() {
+  updateCanvasValueView: function() {
     this.pixelValueDiv.innerHTML = this.getCanvasValue(this.ctx);
   },
 
   drawBrush: function(ctx, x, y, callback = null) {
     // draw brush according to shape of the brush
-    let canvasGrid = this;
+    let self = this;
     this.brushSize.forEach(function(val, i) {
       val.forEach(function(val, j) {
         if (val) {
-          canvasGrid.drawSquarePixel(ctx, x + j * canvasGrid.pixelWidth, y + i * canvasGrid.pixelHeight);
+          self.drawSquarePixel(ctx, x + j * self.pixelWidth, y + i * self.pixelHeight);
         }
       });
     });
@@ -285,7 +285,7 @@ let CanvasGrid = {
   },
 
   resetCurrentCanvas: function() {
-    this.resetCanvas(this.currentCtx, this.updateDivValue.bind(this));
+    this.resetCanvas(this.currentCtx, this.updateCanvasValueView.bind(this));
   }
 
 };
@@ -301,14 +301,14 @@ let TrainingData = {
 
   init: function() {
 
-    this.digitNumberData = document.getElementById('digitNumber');
+    this.trainDigitNumberData = document.getElementById('trainDigitNumber');
     this.storedData = [];
 
     self = this;
     /**
      * Event listener for submit button
      */
-    document.getElementById('submitCanvas').onclick = function() {
+    document.getElementById('submitTrainForm').onclick = function() {
       let val = parseInt(self.digitNumberData.value);
 
       if (val) {
@@ -359,5 +359,12 @@ let TrainingData = {
   }
 };
 
+let PredictData = {
+  init: function() {
+
+  },
+};
+
 CanvasGrid.init();
 TrainingData.init();
+PredictData.init();
