@@ -6,7 +6,7 @@ function Vector2(x, y) {
 
 Vector2.prototype = {
 
-  sqrMagnitudeTo: function(x, y) {
+  sqrMagnitudeTo: function (x, y) {
     // assuming that x contains x and y as attribute
     if (y === undefined) {
       if (x.x === undefined || x.y === undefined) {
@@ -19,21 +19,21 @@ Vector2.prototype = {
     }
   },
 
-  sqrMagnitude: function(x1, x2, y1, y2) {
+  sqrMagnitude: function (x1, x2, y1, y2) {
     return Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2);
   },
 
-  set: function(x, y) {
+  set: function (x, y) {
     // http://stackoverflow.com/questions/2100758/javascript-or-variable-assignment-explanation
     this.x = +x || 0;
     this.y = +y || 0;
   },
 
-  lerpTo: function(x, y, t) {
+  lerpTo: function (x, y, t) {
     return this.lerp(this.x, x, this.y, y, t);
   },
 
-  lerp: function(x1, x2, y1, y2, t) {
+  lerp: function (x1, x2, y1, y2, t) {
     return new Vector2(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t);
   },
 
@@ -46,11 +46,11 @@ Vector2.prototype = {
  * @type {Object}
  */
 let CanvasGrid = {
-  initSettings: function() {
+  initSettings: function () {
     // changeable variables
     this.gridSizeX = 10;
     this.gridSizeY = 10;
-    this.canvasWidth = 500;
+    this.canvasWidth = 500; // TO DEPRECATE
     this.canvasHeight = 500;
     this.brushSize = [
       [1, 1],
@@ -58,14 +58,18 @@ let CanvasGrid = {
     ];
   },
 
-  init: function() {
+  init: function () {
     this.initSettings();
 
-    //  setting canvas container
+    this.drawingArea = document.getElementById("drawingArea");
+    // setting canvas container
     this.canvasContainer = document.getElementById("canvasContainer");
     this.canvasContainer.style.position = 'relative';
-    this.canvasContainer.style.width = this.canvasWidth + 'px';
-    this.canvasContainer.style.height = this.canvasHeight + 'px';
+
+    this.canvases = document.getElementsByClassName('canvas');
+
+    this.resizeCanvases();
+    this.updateCanvasDimensionValues();
 
     this.el = document.getElementById('drawingCanvas');
     this.el2 = document.getElementById('borderCanvas');
@@ -82,29 +86,7 @@ let CanvasGrid = {
     this.pixelList = [];
     this.pixelDrawn = {};
 
-    this.pixelWidth = Math.round(this.canvasWidth / this.gridSizeX);
-    this.pixelHeight = Math.round(this.canvasHeight / this.gridSizeY);
-
-    this.previousMousePos = new Vector2();
-    this.maxSqrMagnitude = Vector2.prototype.sqrMagnitude(this.pixelWidth, 0, this.pixelHeight, 0);
-
     this.storedData = [];
-
-    // setting html content to all canvas because css width and height is not enough
-    // to set canvases height and width
-    let canvases = document.getElementsByClassName('canvas');
-
-    // set all canvas width and height
-    // canvases is not array so cannot call canvases.forEach
-    let self = this;
-    Array.prototype.forEach.call(canvases, function(val) {
-      val.setAttribute('width', val.clientWidth);
-      val.setAttribute('height', val.clientHeight);
-      val.style.width = self.canvasWidth + 'px';
-      val.style.height = self.canvasHeight + 'px';
-      val.width = self.canvasWidth;
-      val.height = self.canvasHeight;
-    });
 
     this.bindEvent();
     // draw canvas
@@ -123,13 +105,14 @@ let CanvasGrid = {
       }
     }
 
+    this.updateCanvasValueView();
   },
 
   /**
    * Binding event for buttons
    * @return {[type]} [description]
    */
-  bindEvent: function() {
+  bindEvent: function () {
     let self = this;
 
     /**
@@ -141,32 +124,34 @@ let CanvasGrid = {
     /**
      * Event listener for canvases
      */
-    self.hitBox.onmousedown = function(e) {
+    self.hitBox.onmousedown = function (e) {
       // only left click
       if (e.button == 0) {
+        let pos = self.getCursorPosition(self.canvasContainer, e);
         self.isDrawing = true;
-        self.drawBrush(self.currentCtx, e.clientX, e.clientY, self.updateCanvasValueView.bind(self));
-        self.previousMousePos.x = e.clientX;
-        self.previousMousePos.y = e.clientY;
+        self.drawBrush(self.currentCtx, pos.x, pos.y, self.updateCanvasValueView.bind(self));
+        self.previousMousePos.x = pos.x;
+        self.previousMousePos.y = pos.y;
       }
     };
 
     /**
      * Event listener for canvases
      */
-    self.hitBox.onmousemove = function(e) {
+    self.hitBox.onmousemove = function (e) {
       if (self.isDrawing) {
-        self.drawInBetween(self.previousMousePos.x, e.clientX, self.previousMousePos.y, e.clientY);
-        self.drawBrush(self.currentCtx, e.clientX, e.clientY, self.updateCanvasValueView.bind(self));
-        self.previousMousePos.set(e.clientX, e.clientY);
-        // canvasGrid.ctx.lineTo(e.clientX, e.clientY); ctx.stroke();
+        let pos = self.getCursorPosition(self.canvasContainer, e);
+        self.drawInBetween(self.previousMousePos.x, pos.x, self.previousMousePos.y, pos.y);
+        self.drawBrush(self.currentCtx, pos.x, pos.y, self.updateCanvasValueView.bind(self));
+        self.previousMousePos.set(pos.x, pos.y);
+        // canvasGrid.ctx.lineTo(pos.x, pos.y); ctx.stroke();
       }
     };
 
     /**
      * Event listener for canvases
      */
-    self.hitBox.onmouseup = function() {
+    self.hitBox.onmouseup = function () {
       self.isDrawing = false;
       self.updateCanvasValueView();
     };
@@ -174,23 +159,72 @@ let CanvasGrid = {
     /**
      * Event listener for document
      */
-    document.onmouseup = function() {
+    document.onmouseup = function () {
       self.isDrawing = false;
     };
 
+    /**
+     * Event listener when windows is resized
+     */
+    window.onresize = function () {
+      self.updateCanvasDimensionValues();
+      self.resizeCanvases();
+      self.resetCanvas(self.currentCtx);
+      self.redraw();
+    };
   },
 
   /* ================ FUNCTIONS ================ */
+  updateCanvasDimensionValues: function () {
+    this.canvasWidth = this.canvasHeight = this.drawingArea.getBoundingClientRect().width;
+    this.pixelWidth = Math.round(this.canvasWidth / this.gridSizeX);
+    this.pixelHeight = Math.round(this.canvasHeight / this.gridSizeY);
 
-  updateCanvasValueView: function() {
-    this.pixelValueDiv.innerHTML = this.getCanvasValue(this.ctx);
+    this.previousMousePos = new Vector2();
+    this.maxSqrMagnitude = Vector2.prototype.sqrMagnitude(this.pixelWidth, 0, this.pixelHeight, 0);
   },
 
-  drawBrush: function(ctx, x, y, callback = null) {
+  resizeCanvases: function () {
+    // resize canvas following the container in 1:1 aspect ratio
+    // setting html content to all canvas because css width and height is not enough
+    // to set canvases height and width
+    let w = this.drawingArea.getBoundingClientRect().width;
+
+    let setElementDimension = function (el, w, h) {
+      el.setAttribute('width', w);
+      el.setAttribute('height', h);
+      el.style.width = w + 'px';
+      el.style.height = h + 'px';
+    }
+
+    // set all canvases width and height
+    setElementDimension(this.canvasContainer, w, w);
+
+    // canvases is not array so cannot call canvases.forEach
+    Array.prototype.forEach.call(this.canvases, function (val) {
+      setElementDimension(val, w, w);
+    });
+  },
+
+  updateCanvasValueView: function () {
+    let canvasValues = this.canvasValues = this.getCurrentCanvasValue();
+    let canvasValueStr = "";
+
+    for (let i = 0; i < canvasValues.length; i++) {
+      if (i != 0 && i % this.gridSizeX == 0) {
+        canvasValueStr += "\n<br>";
+      }
+      canvasValueStr += canvasValues[i] + " ";
+    }
+
+    this.pixelValueDiv.innerHTML = canvasValueStr + "<br>";
+  },
+
+  drawBrush: function (ctx, x, y, callback = null) {
     // draw brush according to shape of the brush
     let self = this;
-    this.brushSize.forEach(function(val, i) {
-      val.forEach(function(val, j) {
+    this.brushSize.forEach(function (val, i) {
+      val.forEach(function (val, j) {
         if (val) {
           self.drawSquarePixel(ctx, x + j * self.pixelWidth, y + i * self.pixelHeight);
         }
@@ -203,21 +237,30 @@ let CanvasGrid = {
   },
 
   // drawing square pixel function
-  drawSquarePixel: function(ctx, x, y) {
-    let x2 = x - (x % this.pixelWidth);
-    let y2 = y - (y % this.pixelHeight);
-    let flatIndex = this.get1dIndex(x2, y2, false);
+  drawSquarePixel: function (ctx, x, y, coordinate = 'pixel') {
+    let x2, y2 = 0;
 
+    if (coordinate == 'pixel') {
+      x2 = x - (x % this.pixelWidth);
+      y2 = y - (y % this.pixelHeight);
+    } else {
+      x2 = x * this.pixelWidth;
+      y2 = y * this.pixelHeight;
+    }
+
+    let flatIndex = this.get1dIndex(x2, y2, false);
+    console.log(this.pixelDrawn);
     if (this.pixelDrawn[flatIndex] == 0) {
+      console.log(`x2: ${x2}, y2: ${y2}`);
       ctx.fillRect(x2, y2, this.pixelWidth, this.pixelHeight);
       this.pixelDrawn[flatIndex] = 1;
     }
   },
 
-  getCanvasValue: function(ctx) {
+  getCanvasValue: function (ctx) {
     let arr = [];
 
-    this.pixelList.forEach(function(val) {
+    this.pixelList.forEach(function (val) {
       let imgData = ctx.getImageData(val[0], val[1], 1, 1).data;
       let r = imgData[0];
       let g = imgData[1];
@@ -229,14 +272,14 @@ let CanvasGrid = {
     return arr;
   },
 
-  resetCanvas: function(ctx, callback = null) {
+  resetCanvas: function (ctx, callback = null) {
     ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, this.el.width, this.el.height);
     ctx.fillStyle = "white";
 
     for (let key in this.pixelDrawn) {
-      this.pixelDrawn[key] = false;
+      this.pixelDrawn[key] = 0;
     }
 
     if (callback != null) {
@@ -244,7 +287,22 @@ let CanvasGrid = {
     }
   },
 
-  drawBorder: function(ctx, x, y, width, height) {
+  redraw: function () {
+    let canvasValues = this.canvasValues;
+
+    for (let i = 0; i < canvasValues.length; i++) {
+      if (canvasValues[i] != 1) {
+        continue;
+      }
+
+      let x = i % this.gridSizeX;
+      let y = Math.floor(i / this.gridSizeX);
+      console.log(`x: ${x}, y: ${y}`);
+      this.drawSquarePixel(this.currentCtx, x, y, coordinate = 'grid');
+    }
+  },
+
+  drawBorder: function (ctx, x, y, width, height) {
     ctx.strokeStyle = 'grey';
     ctx.rect(x, y, width, height);
     ctx.stroke();
@@ -254,7 +312,7 @@ let CanvasGrid = {
   // Basically y * gridSizeX + x
   // [0, 1, 2, 3, 4, 5]
   // [6, 7, 8, 9, 10, 11]
-  get1dIndex: function(x, y, gridValue = false) {
+  get1dIndex: function (x, y, gridValue = false) {
     // if they are out of index, return -1
     if (gridValue) {
       return x >= this.gridSizeX || y >= this.gridSizeY ? -1 : y * this.gridSizeX * this.pixelHeight + x * this.pixelWidth;
@@ -265,7 +323,7 @@ let CanvasGrid = {
 
   // only draw the in between
   // not drawing start and end
-  drawInBetween: function(x1, x2, y1, y2) {
+  drawInBetween: function (x1, x2, y1, y2) {
     let distSqr = Vector2.prototype.sqrMagnitude(x1, x2, y1, y2);
 
     if (distSqr > this.maxSqrMagnitude) {
@@ -280,13 +338,20 @@ let CanvasGrid = {
     }
   },
 
-  getCurrentCanvasValue: function() {
+  getCurrentCanvasValue: function () {
     return this.getCanvasValue(this.currentCtx);
   },
 
-  resetCurrentCanvas: function() {
+  resetCurrentCanvas: function () {
     this.resetCanvas(this.currentCtx, this.updateCanvasValueView.bind(this));
-  }
+  },
+
+  getCursorPosition: function (canvas, event) {
+    var rect = canvas.getBoundingClientRect();
+    var x = event.clientX - rect.left;
+    var y = event.clientY - rect.top;
+    return { "x": x, "y": y };
+  },
 
 };
 
@@ -299,7 +364,7 @@ let TrainingData = {
     trainPostUrl: "/api/ml-model/train",
   },
 
-  init: function() {
+  init: function () {
 
     this.trainDigitNumberData = document.getElementById('trainDigitNumber');
     this.storedData = [];
@@ -308,7 +373,7 @@ let TrainingData = {
     /**
      * Event listener for submit button
      */
-    document.getElementById('submitTrainForm').onclick = function() {
+    document.getElementById('submitTrainForm').onclick = function () {
       let val = parseInt(self.digitNumberData.value);
 
       if (val) {
@@ -333,7 +398,7 @@ let TrainingData = {
 
   },
 
-  sendPostData: function(data, url, headers) {
+  sendPostData: function (data, url, headers) {
     let xhr = new XMLHttpRequest();
 
     xhr.open('POST', url, true);
@@ -344,7 +409,7 @@ let TrainingData = {
       }
     }
 
-    xhr.onload = function(e) {
+    xhr.onload = function (e) {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           console.log(xhr.responseText);
@@ -360,7 +425,7 @@ let TrainingData = {
 };
 
 let PredictData = {
-  init: function() {
+  init: function () {
 
   },
 };
