@@ -144,10 +144,11 @@ let CanvasGrid = {
     self.hitBox.onmousedown = function(e) {
       // only left click
       if (e.button == 0) {
+        let pos = self.getCursorPosition(self.canvasContainer, e);
         self.isDrawing = true;
-        self.drawBrush(self.currentCtx, e.clientX, e.clientY, self.updateCanvasValueView.bind(self));
-        self.previousMousePos.x = e.clientX;
-        self.previousMousePos.y = e.clientY;
+        self.drawBrush(self.currentCtx, pos.x, pos.y, self.updateCanvasValueView.bind(self));
+        self.previousMousePos.x = pos.x;
+        self.previousMousePos.y = pos.y;
       }
     };
 
@@ -156,10 +157,11 @@ let CanvasGrid = {
      */
     self.hitBox.onmousemove = function(e) {
       if (self.isDrawing) {
-        self.drawInBetween(self.previousMousePos.x, e.clientX, self.previousMousePos.y, e.clientY);
-        self.drawBrush(self.currentCtx, e.clientX, e.clientY, self.updateCanvasValueView.bind(self));
-        self.previousMousePos.set(e.clientX, e.clientY);
-        // canvasGrid.ctx.lineTo(e.clientX, e.clientY); ctx.stroke();
+        let pos = self.getCursorPosition(self.canvasContainer, e);
+        self.drawInBetween(self.previousMousePos.x, pos.x, self.previousMousePos.y, pos.y);
+        self.drawBrush(self.currentCtx, pos.x, pos.y, self.updateCanvasValueView.bind(self));
+        self.previousMousePos.set(pos.x, pos.y);
+        // canvasGrid.ctx.lineTo(pos.x, pos.y); ctx.stroke(); 
       }
     };
 
@@ -183,7 +185,17 @@ let CanvasGrid = {
   /* ================ FUNCTIONS ================ */
 
   updateCanvasValueView: function() {
-    this.pixelValueDiv.innerHTML = this.getCanvasValue(this.ctx);
+    let canvasValues = this.canvasValues = this.getCurrentCanvasValue();
+    let canvasValueStr = "";
+
+    for (let i = 0; i < canvasValues.length; i++) {
+      if (i != 0 && i % this.gridSizeX == 0) {
+        canvasValueStr += "\n<br>";
+      }
+      canvasValueStr += canvasValues[i] + " ";
+    }
+
+    this.pixelValueDiv.innerHTML = canvasValueStr + "<br>";
   },
 
   drawBrush: function(ctx, x, y, callback = null) {
@@ -286,7 +298,14 @@ let CanvasGrid = {
 
   resetCurrentCanvas: function() {
     this.resetCanvas(this.currentCtx, this.updateCanvasValueView.bind(this));
-  }
+  },
+
+  getCursorPosition: function (canvas, event) {
+    var rect = canvas.getBoundingClientRect();
+    var x = event.clientX - rect.left;
+    var y = event.clientY - rect.top;
+    return { "x": x, "y": y };
+  },
 
 };
 
