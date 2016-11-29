@@ -5,6 +5,7 @@
   <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> -->
   <link rel="stylesheet" href="{% static 'num_recognition_app/css/style.css' %}">
   <script src="{% static 'num_recognition_app/js/canvas.js' %}" defer></script>
+  <script src="{% static 'num_recognition_app/js/tabSystem.js' %}" defer></script>
   <style>
     .canvas {
       position: absolute;
@@ -15,31 +16,39 @@
 </head>
 
 <body>
-  <div id="drawingArea">
-    <div id="canvasContainer">
-      <canvas id="drawingCanvas" class="canvas"></canvas>
-      <canvas id="borderCanvas" class="canvas"></canvas>
-      <canvas id="topCanvas" class="canvas" style="z-index:9999"></canvas>
+  <div class="container">
+    <div id="drawingArea">
+      <div id="canvasContainer">
+        <canvas id="drawingCanvas" class="canvas"></canvas>
+        <canvas id="borderCanvas" class="canvas"></canvas>
+        <canvas id="topCanvas" class="canvas" style="z-index:9999"></canvas>
+      </div>
+      <button id="resetCanvas">Reset</button>
+      <h3>Canvas Value:</h3>
+      <div id="canvasValue" class="code"></div>
     </div>
-    <button id="resetCanvas">Reset</button>
-    <div id="canvasValue"></div>
-  </div>
+    
+    <div id="tabs" class="tabs">
+      <div class="tab" data-tab-target="trainArea">Train Data</div>
+      <div class="tab" data-tab-target="predictArea">Predict Data</div>
+    </div>
 
-  <div id="trainArea">
-    <h3>Train data</h3>
-    <form id="train-form">
-      Number:
-      <input type="text" name="trainDigitNumber" id="trainDigitNumber">
-      <button type="button" id="submitTrainForm">Submit</button>
-    </form>
-  </div>
-  <div id="predictArea">
-    <h3>Predict!</h3>
-    <form id="predict-form">
-      Number:
-      <input type="text" name="predictDigitNumber" id="predictDigitNumber">
-      <button type="button" id="submitPredictForm">Submit</button>
-    </form>
+    <div id="trainArea">
+      <h3>Train data</h3>
+      <form id="train-form">
+        Number:
+        <input type="text" name="trainDigitNumber" id="trainDigitNumber">
+        <button type="button" id="submitTrainForm">Submit</button>
+      </form>
+    </div>
+    <div id="predictArea">
+      <h3>Predict!</h3>
+      <form id="predict-form">
+        Number:
+        <input type="text" name="predictDigitNumber" id="predictDigitNumber">
+        <button type="button" id="submitPredictForm">Submit</button>
+      </form>
+    </div>
   </div>
 </body>
 

@@ -1,7 +1,62 @@
 $main-font: Helvetica, Roboto, sans-serif;
+$code-font: Monaco, Consolas, monospace, sans-serif;
 $font-size-n: 1rem;
 
 body {
     font-family: $main-font;
     font-size: $font-size-n;
+}
+
+// Classes
+
+.container {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.code {
+    font-family: $code-font;
+}
+
+.tabs {
+    font-size: 0; // prevent spaces between tabs
+    margin: 1.5rem 0;
+}
+
+.tab {
+    background-color: #bbb;
+    font-size: $font-size-n;
+    display: inline-block;
+    padding: 5px 5px;
+    border: 1px solid #000;
+    transition: all ease-in-out 0.25s;
+
+    &:hover {
+        background-color: #f9873c;
+    }
+}
+
+.tab--active {
+    background-color: #fff;
+    border-bottom: 0px;
+}
+
+.tab__content {
+    display: none;
+}
+
+.tab__content--active {
+    display: block;
+}
+
+// Ids
+
+#canvasContainer {
+    margin: 0 auto;
+}
+
+#drawingArea {
+    margin: 0 auto;
+    width: 50%;
 }

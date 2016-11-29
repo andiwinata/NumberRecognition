@@ -1,2 +1,2 @@
-body{font-family:Helvetica,Roboto,sans-serif;font-size:1rem}
+body{font-family:Helvetica,Roboto,sans-serif;font-size:1rem}.container{width:100%;margin:0 auto;text-align:center}.code{font-family:Monaco,Consolas,monospace,sans-serif}.tabs{font-size:0;margin:1.5rem 0}.tab{background-color:#bbb;font-size:1rem;display:inline-block;padding:5px 5px;border:1px solid #000;transition:all ease-in-out 0.25s}.tab:hover{background-color:#f9873c}.tab--active{background-color:#fff;border-bottom:0px}.tab__content{display:none}.tab__content--active{display:block}#canvasContainer{margin:0 auto}#drawingArea{margin:0 auto;width:50%}
 /*# sourceMappingURL=style.css.map */
