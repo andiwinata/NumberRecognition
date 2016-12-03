@@ -5,12 +5,13 @@ $font-size-n: 1rem;
 body {
     font-family: $main-font;
     font-size: $font-size-n;
+    margin: 1rem;
 }
 
 // Classes
 
 .container {
-    width: 100%;
+    width: 50%;
     margin: 0 auto;
     text-align: center;
 }
@@ -54,9 +55,4 @@ body {
 
 #canvasContainer {
     margin: 0 auto;
-}
-
-#drawingArea {
-    margin: 0 auto;
-    width: 50%;
 }
