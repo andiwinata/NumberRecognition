@@ -124,7 +124,7 @@ let CanvasGrid = {
 					i * this.pixelHeight
 				]);
 
-				this.pixelDrawn[this.get1dIndex(j, i, true)] = 0; //TODO change to using grid index since there is resizing
+				this.pixelDrawn[this.get1dIndex(j, i, coordinate = 'grid')] = 0; //TODO change to using grid index since there is resizing
 				this.drawBorder(this.borderContext, j * this.pixelWidth, i * this.pixelHeight, this.pixelWidth, this.pixelHeight);
 			}
 		}
@@ -203,7 +203,7 @@ let CanvasGrid = {
 			console.log(`handle end`);
 		};
 		self.hitBox.onmouseup = function () {
-			if (!isMobile) {
+			if (!self.isMobile) {
 				handleEnd();
 			}
 		}
@@ -314,17 +314,20 @@ let CanvasGrid = {
 
 	// drawing square pixel function
 	drawSquarePixel: function (ctx, x, y, coordinate = 'pixel') {
-		let x2, y2 = 0;
+		let x2 = 0;
+		let y2 = 0;
+		let flatIndex = 0;
 
 		if (coordinate == 'pixel') {
 			x2 = x - (x % this.pixelWidth);
 			y2 = y - (y % this.pixelHeight);
+			flatIndex = this.get1dIndex(x2, y2, coordinate = 'pixel')
 		} else {
 			x2 = x * this.pixelWidth;
 			y2 = y * this.pixelHeight;
+			flatIndex = this.get1dIndex(x, y, coordinate = 'grid');
 		}
 
-		let flatIndex = this.get1dIndex(x2, y2, false);
 		// console.log(this.pixelDrawn);
 		if (this.pixelDrawn[flatIndex] == 0) {
 			// console.log(`x2: ${x2}, y2: ${y2}`);
@@ -399,12 +402,14 @@ let CanvasGrid = {
 	// Basically y * gridSizeX + x
 	// [0, 1, 2, 3, 4, 5]
 	// [6, 7, 8, 9, 10, 11]
-	get1dIndex: function (x, y, gridValue = false) {
+	get1dIndex: function (x, y, coordinate = 'grid') {
 		// if they are out of index, return -1
-		if (gridValue) {
-			return x >= this.gridSizeX || y >= this.gridSizeY ? -1 : y * this.gridSizeX * this.pixelHeight + x * this.pixelWidth;
-		} else {
-			return x >= this.gridSizeX * this.pixelWidth || y >= this.gridSizeY * this.pixelHeight ? -1 : y * this.gridSizeX + x;
+		if (coordinate == 'grid') {
+			return x >= this.gridSizeX || y >= this.gridSizeY ? -1 :
+				y * this.gridSizeX + x;
+		} else { // this may cause bug in the future since pixelWidth and Height are changing during resize
+			return x >= this.gridSizeX * this.pixelWidth || y >= this.gridSizeY * this.pixelHeight ? -1 :
+				Math.floor(y / this.pixelHeight) * this.gridSizeX + Math.floor(x / this.pixelWidth);
 		}
 	},
 
