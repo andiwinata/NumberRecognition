@@ -1,4 +1,3 @@
-// classes declaration
 function Vector2(x, y) {
 	this.x = (x === undefined) ? 0 : x;
 	this.y = (y === undefined) ? 0 : y;
@@ -39,6 +38,11 @@ Vector2.prototype = {
 
 	constructor: Vector2, // putting constructor property back
 };
+
+/**
+ * Current Bugs: 
+ * - Transition between desktop and mobile causes white pixel in different value
+ */
 
 /**
  * Canvas grid, the one used for drawing
@@ -124,7 +128,7 @@ let CanvasGrid = {
 					i * this.pixelHeight
 				]);
 
-				this.pixelDrawn[this.get1dIndex(j, i, coordinate = 'grid')] = 0; //TODO change to using grid index since there is resizing
+				this.pixelDrawn[this.get1dIndex(j, i, coordinate = 'grid')] = 0;
 				this.drawBorder(this.borderContext, j * this.pixelWidth, i * this.pixelHeight, this.pixelWidth, this.pixelHeight);
 			}
 		}
