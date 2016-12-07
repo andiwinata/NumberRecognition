@@ -36,6 +36,10 @@ let tabSystem = {
     },
 
     activateTab(tab) {
+        if (tab == this.previousTab) {
+            return;
+        }
+
         // activate next tab
         if (tab) {
             tab.className += tab.className[tab.className.length - 1] == ' ' ? this.tabActiveClass : ' ' + this.tabActiveClass;

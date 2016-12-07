@@ -24,7 +24,7 @@ body {
 
 .container {
     width: 100%;
-    margin: 1rem auto;
+    margin: auto;
     text-align: center;
 }
 
@@ -34,11 +34,16 @@ body {
 
 .tabs {
     font-size: 0; // prevent spaces between tabs
-    margin: 1.5rem 0;
+    text-align: left;
+}
+
+.tabs-contents {
+    overflow: overlay;
+    background-color: $light-gray;
 }
 
 .tab {
-    background-color: #bbb;
+    background-color: $dark-gray;
     font-size: $font-size-n;
     display: inline-block;
     padding: 5px 5px;
@@ -46,12 +51,12 @@ body {
     transition: all ease-in-out 0.25s;
 
     &:hover {
-        background-color: #f9873c;
+        background-color: map-get($foundation-palette, 'primary');
     }
 }
 
 .tab--active {
-    background-color: #fff;
+    background-color: $light-gray;
     border-bottom: 0px;
 }
 
@@ -63,10 +68,23 @@ body {
     display: block;
 }
 
+.top-bar {
+  box-shadow: 0px 0.1rem 1rem 0.5rem rgba($gray-900, 0.5);
+}
+
 @media all and (min-width: $medium-screen) and (orientation: landscape) {
+    body {
+        background-image: url(../images/dark_material.jpg); 
+        background-size: cover;
+    }
+
     .container {
         display: flex;
         width: 80%;
+        min-height: 100%;
+        background-color: $dark-gray;
+        box-shadow: 1rem 0.1rem 1rem -0.5rem rgba($gray-900, 0.5), 
+                    -1rem 0.1rem 1rem -0.5rem rgba($gray-900, 0.5);
     }
 
     .md-half-width {
@@ -79,9 +97,6 @@ body {
     margin: 0 auto;
 }
 
-#canvasGrid {
-    max-width: 80%;
-    margin: auto;
+.panel {
     padding: 2rem;
-    box-shadow: 0px 0.1rem 1rem 0.5rem rgba($gray-900, 0.5);
 }

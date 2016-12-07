@@ -237,6 +237,7 @@ let CanvasGrid = {
 			self.resetCanvas(self.currentLayerId);
 			self.drawGridBorder();
 			self.redraw();
+			self.updateCanvasValueView();
 		};
 	},
 

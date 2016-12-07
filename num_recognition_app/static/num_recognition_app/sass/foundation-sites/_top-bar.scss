@@ -14,10 +14,6 @@ $topbar-padding: 1rem !default;
 /// @type Color
 $topbar-background: map-get($foundation-palette, 'primary') !default;
 
-$topbar-secondary: map-get($foundation-palette, 'secondary') !default;
-
-$topbar-shadow: $gray-900;
-
 /// Background color submenus within the top bar. Usefull if $topbar-background is transparent.
 /// @type Color
 $topbar-submenu-background: $topbar-background !default;
@@ -119,11 +115,6 @@ $topbar-unstack-breakpoint: medium !default;
   }
 }
 
-@mixin top-bar-custom {
-  box-shadow: 0px 0.1rem 1rem 0.5rem rgba($topbar-shadow, 0.5);
-  // border-bottom: 2px solid $topbar-secondary;
-}
-
 @mixin foundation-top-bar {
   // Top bar container
   .top-bar {
@@ -131,8 +122,6 @@ $topbar-unstack-breakpoint: medium !default;
 
     // Stack on small screens by default
     @include top-bar-stacked;
-
-    @include top-bar-custom;
 
     @include breakpoint($topbar-unstack-breakpoint) {
       @include top-bar-unstack;
