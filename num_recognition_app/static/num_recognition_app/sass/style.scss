@@ -1,17 +1,30 @@
+@import "normalize";
+
+@import "foundation-sites/global";
+@import "foundation-sites/util/util";
+
+@import "foundation-sites/top-bar";
+@import "foundation-sites/button";
+
+@include foundation-global-styles;
+@include foundation-top-bar;
+@include foundation-button;
+
 $main-font: Helvetica, Roboto, sans-serif;
 $code-font: Monaco, Consolas, monospace, sans-serif;
 $font-size-n: 1rem;
 
+$medium-screen: 1024px;
+
 body {
     font-family: $main-font;
     font-size: $font-size-n;
+    margin: 0;
 }
 
-// Classes
-
 .container {
-    width: 100%;
-    margin: 0 auto;
+    width: 60%;
+    margin: 1rem auto;
     text-align: center;
 }
 
@@ -50,13 +63,23 @@ body {
     display: block;
 }
 
-// Ids
+@media all and (min-width: $medium-screen) and (orientation: landscape) {
+    .container {
+        display: flex;
+        width: 100%;
+    }
+
+    .md-half-width {
+        box-sizing: border-box;
+        width: 50%;
+    }
+}
 
 #canvasContainer {
     margin: 0 auto;
 }
 
-#drawingArea {
-    margin: 0 auto;
-    width: 50%;
+#canvasGrid {
+    max-width: 80%;
+    margin: auto;
 }
