@@ -63,6 +63,9 @@ let CanvasGrid = {
 		this.oneColor = "#ffffff";
 		this.borderColor = "#FFECB3";
 		this.textColor = "rgba(255, 87, 34, 0.5)"; //"#FF5722";
+		
+		// multiplier based on size of 1 grid pixel
+		this.fontSizeMultiplier = 0.75;
 	},
 
 	get currentCtx() {
@@ -107,8 +110,6 @@ let CanvasGrid = {
 		this.hitBox = document.getElementById('topCanvas');
 		this.borderContext = document.getElementById('borderCanvas').getContext('2d');
 		this.valueContext = document.getElementById('valueCanvas').getContext('2d');
-
-		this.pixelValueDiv = document.getElementById('canvasValue');
 
 		this.lastGeneratedLayerId = 0;
 		this.createCanvasLayer(canvasContainer);
@@ -292,21 +293,15 @@ let CanvasGrid = {
 
 	updateCanvasValueView: function () {
 		let canvasValues = this.canvasValues = this.getCurrentCanvasValue();
-		let canvasValueStr = "";
 		this.valueContext.clearRect(0, 0, this.currentWidth, this.currentWidth);
 
 		for (let i = 0; i < canvasValues.length; i++) {
-			if (i != 0 && i % this.gridSizeX == 0) {
-				canvasValueStr += "\n<br>";
-			}
-			canvasValueStr += canvasValues[i] + " ";
-
+			let index2d = this.get2dIndex(i);
 			this.drawCanvasGridText(this.valueContext, canvasValues[i],
-				i % this.gridSizeX * this.pixelWidth + (0.5 * this.pixelWidth),
-				Math.floor(i / this.gridSizeX) * this.pixelHeight + (0.5 * this.pixelHeight));
+				index2d.x * this.pixelWidth + (0.5 * this.pixelWidth),
+				index2d.y * this.pixelHeight + (0.5 * this.pixelHeight));
 		}
-		// for some reason this causes changes to drawingArea div height
-		this.pixelValueDiv.innerHTML = canvasValueStr + "<br>";
+
 	},
 
 	/**
@@ -369,7 +364,7 @@ let CanvasGrid = {
 	drawCanvasGridText: function (ctx, text, x, y) {
 		let currentStyle = ctx.fillStyle;
 
-		ctx.font = `bold ${this.currentWidth / this.gridSizeX}px Monaco, Consolas`;
+		ctx.font = `bold ${this.currentWidth / this.gridSizeX * this.fontSizeMultiplier}px Monaco, Consolas`;
 		ctx.fillStyle = this.textColor;
 		ctx.textBaseline = "middle";
 		ctx.textAlign = "center";
@@ -444,10 +439,17 @@ let CanvasGrid = {
 		}
 	},
 
-	// Return 1d index of 2d position
-	// Basically y * gridSizeX + x
-	// [0, 1, 2, 3, 4, 5]
-	// [6, 7, 8, 9, 10, 11]
+
+	/**
+	 * Return 1d index of 2d position
+	 * Basically y * gridSizeX + x
+	 * [0, 1, 2, 3, 4, 5]
+	 * [6, 7, 8, 9, 10, 11]
+	 * @param  {number} x
+	 * @param  {number} y
+	 * @param  {string} coordinate='grid'
+	 * @return {number}
+	 */
 	get1dIndex: function (x, y, coordinate = 'grid') {
 		// if they are out of index, return -1
 		if (coordinate == 'grid') {
@@ -456,6 +458,22 @@ let CanvasGrid = {
 		} else { // this may cause bug in the future since pixelWidth and Height are changing during resize
 			return x >= this.gridSizeX * this.pixelWidth || y >= this.gridSizeY * this.pixelHeight ? -1 :
 				Math.floor(y / this.pixelHeight) * this.gridSizeX + Math.floor(x / this.pixelWidth);
+		}
+	},
+
+	/**
+	 * Get 2d index from 1d index
+	 * @param  {} flatIndex
+	 * @param  {} coordinate='grid'
+	 * @return {Object{x, y}}
+	 */
+	get2dIndex: function (flatIndex, coordinate = 'grid') {
+		if (coordinate == 'grid') {
+			return {x: flatIndex % this.gridSizeX, y: Math.floor(flatIndex / this.gridSizeX)};
+		} else {
+			let xGrid = Math.floor(flatIndex % this.pixelWidth);
+			let yGrid = Math.floor(flatIndex / this.pixelHeight);
+			return {x: xGrid, y: yGrid};
 		}
 	},
 
