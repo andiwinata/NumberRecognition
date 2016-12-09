@@ -61,8 +61,9 @@ let CanvasGrid = {
 		];
 		this.zeroColor = "#000000";
 		this.oneColor = "#ffffff";
-		this.borderColor = "#FFECB3";
-		this.textColor = "rgba(255, 87, 34, 0.5)"; //"#FF5722";
+		this.borderColor = "#FF9E80";
+		this.textColor = "rgba(255, 158, 128, 0.5)"; //"#FF9E80";
+		this.fontFamily = "Lato, Consolas, Monaco, sans-serif";
 		
 		// multiplier based on size of 1 grid pixel
 		this.fontSizeMultiplier = 0.75;
@@ -365,7 +366,7 @@ let CanvasGrid = {
 	drawCanvasGridText: function (ctx, text, x, y) {
 		let currentStyle = ctx.fillStyle;
 
-		ctx.font = `bold ${this.currentWidth / this.gridSizeX * this.fontSizeMultiplier}px Monaco, Consolas`;
+		ctx.font = `bold ${this.currentWidth / this.gridSizeX * this.fontSizeMultiplier}px ${this.fontFamily}`;
 		ctx.fillStyle = this.textColor;
 		ctx.textBaseline = "middle";
 		ctx.textAlign = "center";
@@ -542,7 +543,7 @@ let TrainingData = {
      * Event listener for submit button
      */
     document.getElementById('submitTrainForm').onclick = function() {
-      let val = parseInt(self.digitNumberData.value);
+      let val = parseInt(self.trainDigitNumberData.value);
 
       if (val) {
         let canvasValue = CanvasGrid.getCurrentCanvasValue();
@@ -554,7 +555,7 @@ let TrainingData = {
         self.storedData.push(data);
 
         // reset the data and canvas
-        self.digitNumberData.value = '';
+        self.trainDigitNumberData.value = '';
         CanvasGrid.resetCurrentCanvas();
 
         // sending the data

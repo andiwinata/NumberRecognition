@@ -4,21 +4,17 @@
 <head>
 	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> -->
 	<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.4/foundation.css">-->
+	<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
 	<link rel="stylesheet" href="{% static 'num_recognition_app/css/style.css' %}">
 	<script src="{% static 'num_recognition_app/js/canvas.js' %}" defer></script>
 	<script src="{% static 'num_recognition_app/js/tabSystem.js' %}" defer></script>
-	<style>
-		.canvas {
-			position: absolute;
-			left: 0;
-			top: 0;
-		}
-	</style>
 </head>
 
 <body>
 	<nav class="top-bar" data-topbar role="navigation">
-		<div>Number Recognition</div>
+		<div>
+			<h1>Number Recognition</h1>
+		</div>
 	</nav>
 	<div class="container">
 		<div class="panel md-half-width">
@@ -36,26 +32,30 @@
 		</div>
 
 		<div class="panel md-half-width">
-			<div id="tabs" class="tabs">
-				<div class="tab" data-tab-target="trainArea">Train Data</div>
-				<div class="tab" data-tab-target="predictArea">Predict Data</div>
-			</div>
-			<div class="tabs-contents">
-				<div id="trainArea">
-					<h3>Train data</h3>
-					<form id="train-form">
-						Number:
-						<input type="text" name="trainDigitNumber" id="trainDigitNumber">
-						<button class="button expanded" type="button" id="submitTrainForm">Submit</button>
-					</form>
+			<div class="tab-wrapper">
+				<div id="tabs" class="tabs">
+					<div class="tab" data-tab-target="trainArea">Train Data</div>
+					<div class="tab" data-tab-target="predictArea">Predict Data</div>
 				</div>
-				<div id="predictArea">
-					<h3>Predict!</h3>
-					<form id="predict-form">
-						Number:
-						<input type="text" name="predictDigitNumber" id="predictDigitNumber">
-						<button class="button expanded" type="button" id="submitPredictForm">Submit</button>
-					</form>
+				<div class="tabs-contents">
+					<div id="trainArea">
+						<h3>Train data</h3>
+						<form id="train-form">
+							<div class="form__field">
+								<label for="trainDigitNumber">Number</label>
+								<input type="text" name="trainDigitNumber" id="trainDigitNumber">
+							</div>
+							<button class="button expanded" type="button" id="submitTrainForm">Submit</button>
+						</form>
+					</div>
+					<div id="predictArea">
+						<h3>Predict!</h3>
+						<div class="predict-result">
+							The number is: 3!
+						</div>
+						<button class="button expanded" type="button" id="submitPredictForm">Predict!</button>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>

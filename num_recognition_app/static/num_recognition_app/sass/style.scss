@@ -3,65 +3,105 @@
 @import "foundation-sites/global";
 @import "foundation-sites/util/util";
 
-@import "foundation-sites/top-bar";
 @import "foundation-sites/button";
 
 @include foundation-global-styles;
-@include foundation-top-bar;
 @include foundation-button;
 
-$main-font: Helvetica, Roboto, sans-serif;
+$main-font: "Lato", Roboto, sans-serif;
 $code-font: Monaco, Consolas, monospace, sans-serif;
 $font-size-n: 1rem;
+$font-size-l: 2rem;
+$font-size-xxl: 4rem;
 
 $medium-screen: 1024px;
+
+// =======
+// Elements
+// =======
 
 body {
     font-family: $main-font;
     font-size: $font-size-n;
-    margin: 0;
+    background-color: $gray-900;
 }
+
+h1 {
+    margin: 0;
+    font-size: $font-size-n;
+}
+
+// =======
+// Abstract Classes
+// =======
+
+%shadow-element {
+    box-shadow: 0rem 0.1rem 0.5rem 0.1rem rgba($gray-900, 0.5);
+}
+
+%top-bottom-margin {
+    margin: 1rem 0;
+}
+
+// =======
+// Classes
+// =======
 
 .container {
     width: 100%;
     margin: auto;
     text-align: center;
+    background-color: $gray-800;
+}
+
+.panel {
+    padding: 2rem 0.5rem;
 }
 
 .code {
     font-family: $code-font;
 }
 
+.tab-wrapper {
+    @extend %shadow-element;
+}
+
 .tabs {
-    font-size: 0; // prevent spaces between tabs
-    text-align: left;
+    display: flex;
 }
 
 .tabs-contents {
     overflow: overlay;
-    background-color: $light-gray;
+    background-color: $gray-700;
+    min-height: 40%;
+    text-align: left;
 }
 
 .tab {
-    background-color: $dark-gray;
+    background-color: $gray-900;
     font-size: $font-size-n;
-    display: inline-block;
     padding: 5px 5px;
-    border: 1px solid #000;
+    flex: 1 1 auto;
+    line-height: 2.5;
     transition: all ease-in-out 0.25s;
 
     &:hover {
-        background-color: map-get($foundation-palette, 'primary');
+        background-color: $black;//map-get($foundation-palette, 'primary');
     }
 }
 
 .tab--active {
-    background-color: $light-gray;
+    background-color: $gray-700;
     border-bottom: 0px;
+
+    &:hover {
+        background-color: $gray-700;
+    }
 }
 
 .tab__content {
     display: none;
+    padding: 0 2rem;
 }
 
 .tab__content--active {
@@ -69,34 +109,67 @@ body {
 }
 
 .top-bar {
-  box-shadow: 0px 0.1rem 1rem 0.5rem rgba($gray-900, 0.5);
+    background-color: map-get($foundation-palette, 'primary');
+    line-height: 3.5;
+    padding: 0 1.5rem;
+    @extend %shadow-element;
+}
+
+.form__field {
+    display: flex;
+    @extend %top-bottom-margin;
+
+    * {
+        flex-grow: 1;
+        line-height: 2;
+    }
+}
+
+.predict-result {
+    display: block;
+    @extend %top-bottom-margin;
+    font-size: $font-size-l;
+}
+
+.canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+// =======
+// Ids
+// =======
+
+#canvasContainer {
+    margin: 0 auto 1rem;
+}
+
+#canvasGrid {
+    padding: 2rem;
+    background-color: $gray-700;
+    @extend %shadow-element;
 }
 
 @media all and (min-width: $medium-screen) and (orientation: landscape) {
     body {
-        background-image: url(../images/dark_material.jpg); 
+        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../images/dark_material.jpg');
         background-size: cover;
     }
 
     .container {
         display: flex;
-        width: 80%;
-        min-height: 100%;
-        background-color: $dark-gray;
-        box-shadow: 1rem 0.1rem 1rem -0.5rem rgba($gray-900, 0.5), 
-                    -1rem 0.1rem 1rem -0.5rem rgba($gray-900, 0.5);
+        width: 75%;
+        padding: 0 2%;
+    }
+
+    .top-bar {
+        width: 75%;
+        margin: auto;
     }
 
     .md-half-width {
         box-sizing: border-box;
         width: 50%;
     }
-}
-
-#canvasContainer {
-    margin: 0 auto;
-}
-
-.panel {
-    padding: 2rem;
 }
