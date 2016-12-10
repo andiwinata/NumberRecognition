@@ -4,6 +4,7 @@
 <head>
 	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> -->
 	<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.4/foundation.css">-->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
 	<link rel="stylesheet" href="{% static 'num_recognition_app/css/style.css' %}">
 	<script src="{% static 'num_recognition_app/js/canvas.js' %}" defer></script>
@@ -18,7 +19,8 @@
 	</nav>
 	<div class="container">
 		<div class="panel md-half-width">
-			<div id="canvasGrid">
+			<section id="canvasGrid">
+				<h2 class="hidden">Canvas Grid</h2>
 				<div id="drawingArea">
 					<div id="canvasContainer">
 						<!--<canvas id="drawingCanvas" class="canvas"></canvas>-->
@@ -28,7 +30,7 @@
 					</div>
 				</div>
 				<button class="button expanded" id="resetCanvas">Reset</button>
-			</div>
+			</section>
 		</div>
 
 		<div class="panel md-half-width">
@@ -38,24 +40,25 @@
 					<div class="tab" data-tab-target="predictArea">Predict Data</div>
 				</div>
 				<div class="tabs-contents">
-					<div id="trainArea">
+					<section id="trainArea">
 						<h3>Train data</h3>
 						<form id="train-form">
 							<div class="form__field">
 								<label for="trainDigitNumber">Number</label>
 								<input type="text" name="trainDigitNumber" id="trainDigitNumber">
 							</div>
+							<div id="trainFormMessage" class="form__message success hidden--no-height">Successfully added!</div>
 							<button class="button expanded" type="button" id="submitTrainForm">Submit</button>
 						</form>
-					</div>
-					<div id="predictArea">
+					</section>
+					<section id="predictArea">
 						<h3>Predict!</h3>
-						<div class="predict-result">
+						<div id="predictResult" class="predict-result">
 							The number is: 3!
 						</div>
-						<button class="button expanded" type="button" id="submitPredictForm">Predict!</button>
+						<button class="button expanded" type="button" id="submitPredict">Predict!</button>
 						</form>
-					</div>
+					</section>
 				</div>
 			</div>
 		</div>

@@ -1,43 +1,43 @@
 // classes declaration
 function Vector2(x, y) {
-  this.x = (x === undefined) ? 0 : x;
-  this.y = (y === undefined) ? 0 : y;
+	this.x = (x === undefined) ? 0 : x;
+	this.y = (y === undefined) ? 0 : y;
 }
 
 Vector2.prototype = {
 
-  sqrMagnitudeTo: function(x, y) {
-    // assuming that x contains x and y as attribute
-    if (y === undefined) {
-      if (x.x === undefined || x.y === undefined) {
-        console.error('cannot get x and y value');
-      } else {
-        return this.sqrMagnitude(this.x, x.x, this.y, x.y);
-      }
-    } else { // if there are 2 inputs
-      return this.sqrMagnitude(this.x, x, this.y, y);
-    }
-  },
+	sqrMagnitudeTo: function (x, y) {
+		// assuming that x contains x and y as attribute
+		if (y === undefined) {
+			if (x.x === undefined || x.y === undefined) {
+				console.error('cannot get x and y value');
+			} else {
+				return this.sqrMagnitude(this.x, x.x, this.y, x.y);
+			}
+		} else { // if there are 2 inputs
+			return this.sqrMagnitude(this.x, x, this.y, y);
+		}
+	},
 
-  sqrMagnitude: function(x1, x2, y1, y2) {
-    return Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2);
-  },
+	sqrMagnitude: function (x1, x2, y1, y2) {
+		return Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2);
+	},
 
-  set: function(x, y) {
-    // http://stackoverflow.com/questions/2100758/javascript-or-variable-assignment-explanation
-    this.x = +x || 0;
-    this.y = +y || 0;
-  },
+	set: function (x, y) {
+		// http://stackoverflow.com/questions/2100758/javascript-or-variable-assignment-explanation
+		this.x = +x || 0;
+		this.y = +y || 0;
+	},
 
-  lerpTo: function(x, y, t) {
-    return this.lerp(this.x, x, this.y, y, t);
-  },
+	lerpTo: function (x, y, t) {
+		return this.lerp(this.x, x, this.y, y, t);
+	},
 
-  lerp: function(x1, x2, y1, y2, t) {
-    return new Vector2(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t);
-  },
+	lerp: function (x1, x2, y1, y2, t) {
+		return new Vector2(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t);
+	},
 
-  constructor: Vector2, // putting constructor property back
+	constructor: Vector2, // putting constructor property back
 };
 
 /**
@@ -63,8 +63,8 @@ let CanvasGrid = {
 		this.oneColor = "#ffffff";
 		this.borderColor = "#FF9E80";
 		this.textColor = "rgba(255, 158, 128, 0.5)"; //"#FF9E80";
-		this.fontFamily = "Lato, Consolas, Monaco, sans-serif";
-		
+		this.fontFamily = "Roboto, Consolas, Monaco, sans-serif";
+
 		// multiplier based on size of 1 grid pixel
 		this.fontSizeMultiplier = 0.75;
 	},
@@ -163,7 +163,6 @@ let CanvasGrid = {
 
 			let x = coordinate.x;
 			let y = coordinate.y;
-			console.log(`handle start, x: ${x}, y:${y}`);
 			self.drawBrush(self.currentLayerId, x, y, self.updateCanvasValueView.bind(self));
 			self.previousMousePos.x = x;
 			self.previousMousePos.y = y;
@@ -171,7 +170,6 @@ let CanvasGrid = {
 		self.hitBox.onmousedown = function (e) {
 			// only left click
 			if (e.button == 0 && !self.isMobile) {
-				console.log('mouse down');
 				handleStart(self.getCursorPosition(e, 'mouse'));
 			}
 		};
@@ -209,7 +207,6 @@ let CanvasGrid = {
 		let handleEnd = function (e) {
 			self.isDrawing = false;
 			self.updateCanvasValueView();
-			console.log(`handle end`);
 		};
 		self.hitBox.onmouseup = function () {
 			if (!self.isMobile) {
@@ -359,7 +356,7 @@ let CanvasGrid = {
 			ctx.fillRect(x2, y2, this.pixelWidth, this.pixelHeight);
 			this.pixelDrawn[layerId][flatIndex] = 1;
 		} else {
-			console.log(`pixel has been drawn`);
+			// console.log(`pixel has been drawn`);
 		}
 	},
 
@@ -471,11 +468,11 @@ let CanvasGrid = {
 	 */
 	get2dIndex: function (flatIndex, coordinate = 'grid') {
 		if (coordinate == 'grid') {
-			return {x: flatIndex % this.gridSizeX, y: Math.floor(flatIndex / this.gridSizeX)};
+			return { x: flatIndex % this.gridSizeX, y: Math.floor(flatIndex / this.gridSizeX) };
 		} else {
 			let xGrid = Math.floor(flatIndex % this.pixelWidth);
 			let yGrid = Math.floor(flatIndex / this.pixelHeight);
-			return {x: xGrid, y: yGrid};
+			return { x: xGrid, y: yGrid };
 		}
 	},
 
@@ -529,75 +526,159 @@ let CanvasGrid = {
  * @type {Object}
  */
 let TrainingData = {
-  configs: {
-    trainPostUrl: "/api/ml-model/train",
-  },
+	configs: {
+		trainUrl: "/api/ml-model/train",
+	},
 
-  init: function() {
+	init: function () {
+		this.formMessage = document.getElementById("trainFormMessage");
+		this.formMessageTypes = { "success": "success", "alert": "alert" };
 
-    this.trainDigitNumberData = document.getElementById('trainDigitNumber');
-    this.storedData = [];
+		this.trainDigitNumberInput = document.getElementById('trainDigitNumber');
+		this.storedData = [];
 
-    self = this;
-    /**
-     * Event listener for submit button
-     */
-    document.getElementById('submitTrainForm').onclick = function() {
-      let val = parseInt(self.trainDigitNumberData.value);
+		let self = this;
+		/**
+		 * Event listener for submit button
+		 */
+		document.getElementById('submitTrainForm').onclick = function () {
+			let val = self.trainDigitNumberInput.value;
 
-      if (val) {
-        let canvasValue = CanvasGrid.getCurrentCanvasValue();
-        let data = {
-          label: val,
-          features: canvasValue
-        };
-        // store data to array
-        self.storedData.push(data);
+			// check if it contains valid string (not just empty whitespace)
+			// http://stackoverflow.com/questions/2031085/how-can-i-check-if-string-contains-characters-whitespace-not-just-whitespace
+			if (!/\S/.test(val)) {
+				self.setFormMessageValue("Hey don't leave the data label empty!", "alert");
+				self.setFormMessageVisibility(true);
+				return;
+			}
 
-        // reset the data and canvas
-        self.trainDigitNumberData.value = '';
-        CanvasGrid.resetCurrentCanvas();
+			let intVal = parseInt(val);
 
-        // sending the data
-        self.sendPostData(data, self.configs.trainPostUrl, [{
-          "Content-type": "application/json;charset=UTF-8"
-        }]);
-      }
-    };
+			if (intVal) {
+				let canvasValue = CanvasGrid.getCurrentCanvasValue();
+				let data = {
+					label: intVal,
+					features: canvasValue
+				};
+				// store data to array
+				self.storedData.push(data);
 
-  },
+				// reset the data and canvas
+				self.trainDigitNumberInput.value = '';
+				CanvasGrid.resetCurrentCanvas();
 
-  sendPostData: function(data, url, headers) {
-    let xhr = new XMLHttpRequest();
+				// sending the data
+				Util.sendPostData(data, self.configs.trainUrl, [{
+					"Content-type": "application/json;charset=UTF-8"
+				}]);
 
-    xhr.open('POST', url, true);
+				self.setFormMessageValue('Successfully added training data!', 'success');
+			} else {
+				self.setFormMessageValue("Only put integer as data label!", "alert");
+			}
 
-    for (header of headers) {
-      for (hKey in header) {
-        xhr.setRequestHeader(hKey, header[hKey]);
-      }
-    }
+			self.setFormMessageVisibility(true);
+		};
 
-    xhr.onload = function(e) {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          console.log(xhr.responseText);
-        } else {
-          console.error(xhr.statusText);
-        }
-      }
-    };
+		this.trainDigitNumberInput.oninput = function () {
+			self.setFormMessageVisibility(false);
+		};
 
-    let jsonData = JSON.stringify(data);
-    xhr.send(jsonData);
-  }
+	},
+
+	setFormMessageVisibility: function (visible) {
+		let hiddenClassName = "hidden--no-height";
+
+		if (visible) {
+			this.formMessage.classList.remove(hiddenClassName);
+		} else {
+			let classes = this.formMessage.classList;
+			if (!classes.contains(hiddenClassName)) {
+				this.formMessage.classList.add(hiddenClassName);
+			}
+		}
+
+	},
+
+	setFormMessageValue: function (message, type = "success") {
+		if (!type in this.formMessageTypes) {
+			throw new Error(`Form message type ${type} does not exist in the formMessageTypes!`);
+		}
+
+		// set the message
+		this.formMessage.innerHTML = message;
+
+		// check if same type
+		let classList = this.formMessage.classList;
+
+		if (classList.contains(type)) {
+			return;
+		}
+
+		// clean all other messageTypes
+		for (let cls of classList) {
+			if (cls in this.formMessageTypes) {
+				this.formMessage.classList.remove(cls);
+			}
+		}
+
+		this.formMessage.classList.add(type);
+	},
+
 };
 
 let PredictData = {
-  init: function() {
+	configs: {
+		predictUrl: "/api/ml-model/predict",
+	},
 
-  },
+	init: function () {
+		this.submitPredictButton = document.getElementById("submitPredict");
+		this.predictResult = document.getElementById("predictResult");
+		let self = this;
+
+		this.submitPredictButton.onclick = function () {
+			// sending the data
+			data = [];
+			Util.sendPostData(data, self.configs.predictUrl, [{
+				"Content-type": "application/json;charset=UTF-8"}], 
+				function (response) {
+					self.predictResult.innerHTML = `The number is: ${response}!`;
+				}
+			);
+		};
+	},
 };
+
+let Util = {
+	sendPostData: function (data, url, headers, onSuccessResponse) {
+		let xhr = new XMLHttpRequest();
+
+		xhr.open('POST', url, true);
+
+		for (header of headers) {
+			for (hKey in header) {
+				xhr.setRequestHeader(hKey, header[hKey]);
+			}
+		}
+
+		xhr.onload = function (e) {
+			if (xhr.readyState === XMLHttpRequest.DONE) {
+				if (xhr.status === 200) {
+					console.log(xhr.responseText);
+					if (typeof onSuccessResponse === "function") {
+						onSuccessResponse(xhr.responseText);
+					}
+				} else {
+					console.error(xhr.statusText);
+				}
+			}
+		};
+
+		let jsonData = JSON.stringify(data);
+		xhr.send(jsonData);
+	},
+}
 
 CanvasGrid.init();
 TrainingData.init();

@@ -39,6 +39,17 @@ class MLModelAPI(APIView):
             return Response("Successfully adding training data")
 
 
+class MLPredict(APIView):
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    
+    def get(self, request, format=None):
+        return Response('something')
+
+    def post(self, request, format=None):
+        # do prediction with request post data
+        return Response('predicted number')
+
+
 class CustomException(APIException):
     """
     Raising custom exception from Django REST

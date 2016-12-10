@@ -31,6 +31,10 @@ h1 {
     font-size: $font-size-n;
 }
 
+input {
+    padding: 0 0.5rem;
+}
+
 // =======
 // Abstract Classes
 // =======
@@ -50,6 +54,7 @@ h1 {
 .container {
     width: 100%;
     margin: auto;
+    padding: 0 0.2rem;
     text-align: center;
     background-color: $gray-800;
 }
@@ -60,6 +65,23 @@ h1 {
 
 .code {
     font-family: $code-font;
+}
+
+.hidden {
+    position: absolute;
+    left: -9999px;
+}
+
+.hidden--no-height.hidden--no-height {
+    max-height: 0;
+}
+
+.success {
+    color: $success-color;
+}
+
+.alert {
+    color: $alert-color;
 }
 
 .tab-wrapper {
@@ -83,16 +105,17 @@ h1 {
     padding: 5px 5px;
     flex: 1 1 auto;
     line-height: 2.5;
+    border-top: 0.25rem solid transparent;
     transition: all ease-in-out 0.25s;
 
     &:hover {
-        background-color: $black;//map-get($foundation-palette, 'primary');
+        background-color: $black;
     }
 }
 
 .tab--active {
     background-color: $gray-700;
-    border-bottom: 0px;
+    border-top: 0.25rem solid $primary-color;
 
     &:hover {
         background-color: $gray-700;
@@ -109,7 +132,7 @@ h1 {
 }
 
 .top-bar {
-    background-color: map-get($foundation-palette, 'primary');
+    background-color: $primary-color;
     line-height: 3.5;
     padding: 0 1.5rem;
     @extend %shadow-element;
@@ -122,7 +145,19 @@ h1 {
     * {
         flex-grow: 1;
         line-height: 2;
+        box-sizing: border-box;
     }
+
+    input {
+        margin-left: 0.5rem;
+        min-width: 0;
+    }
+}
+
+.form__message {
+    display: inline-flex;
+    overflow: hidden;
+    margin-bottom: 1rem;
 }
 
 .predict-result {
@@ -153,7 +188,9 @@ h1 {
 
 @media all and (min-width: $medium-screen) and (orientation: landscape) {
     body {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../images/dark_material.jpg');
+        background-image: linear-gradient(rgba(0, 0, 0, 0.5), 
+                rgba($primary-color, 0.5)), 
+                url('../images/dark_material.jpg');
         background-size: cover;
     }
 
@@ -171,5 +208,12 @@ h1 {
     .md-half-width {
         box-sizing: border-box;
         width: 50%;
+    }
+
+    .form__message {
+        // this will break in narrow screen such as iphone 5
+        // and not reliable if the text are longer than 1 line
+        max-height: 2rem; 
+        transition: max-height ease-in-out 0.5s;
     }
 }
