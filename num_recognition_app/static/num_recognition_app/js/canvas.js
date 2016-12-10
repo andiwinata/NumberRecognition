@@ -76,21 +76,13 @@ let CanvasGrid = {
 	getLayerContext: function (layerId) {
 		let layerObj = this.canvasLayers[layerId];
 		if (layerObj === undefined) {
-			throw new Error(`Cannot get the current context for id ${layerId}!`);
+			let err = new Error(`Cannot get the current context for id ${layerId}!`);
+			throw err;
 		}
 
 		return layerObj.context;
 	},
 
-	/**
-	 * Update the current width of all canvases
-	 * for some reason cannot use getter() since the getCurrentWidth() will always 
-	 * give different value in the beginning (might be some loading changes)
-	 */
-	updateCurrentWidth() {
-		let rawWidth = this.drawingArea.getBoundingClientRect().width;
-		this.currentWidth = rawWidth - (rawWidth % this.gridSizeX);
-	},
 
 	init: function () {
 		this.initSettings();
@@ -103,8 +95,11 @@ let CanvasGrid = {
 		this.canvases = [...document.getElementsByClassName('canvas')];
 		this.canvasLayers = {};
 
-		this.pixelList = [];
+		// pixel drawn is mainly used for view representation
 		this.pixelDrawn = {};
+		// this is similar to pixelDrawn but it only care about 1 layer for now...
+		// this is used for redraw() even though a bit redundant with pixelDrawn
+		this.canvasValues = {};
 
 		this.storedData = [];
 
@@ -121,25 +116,11 @@ let CanvasGrid = {
 
 		this.bindEvent();
 
-		this.updateCurrentWidth();
-		this.updateCanvasDimensionValues();
+		this.updateCanvasSizeData();
 		this.resizeCanvases();
 		this.resetCanvas(this.currentLayerId);
-
-		// get pixel list and draw border
-		for (let i = 0; i < this.gridSizeY; i++) {
-			for (let j = 0; j < this.gridSizeX; j++) {
-				this.pixelList.push([
-					j * this.pixelWidth,
-					i * this.pixelHeight
-				]);
-
-				this.pixelDrawn[this.currentLayerId][this.get1dIndex(j, i, coordinate = 'grid')] = 0;
-				this.drawBorder(this.borderContext, j * this.pixelWidth, i * this.pixelHeight, this.pixelWidth, this.pixelHeight);
-			}
-		}
-
-		this.updateCanvasValueView();
+		this.drawGridBorder();
+		this.updateCanvasValueView(this.currentLayerId);
 	},
 
 	/**
@@ -153,7 +134,7 @@ let CanvasGrid = {
 		 * Event listener for reset button
 		 */
 		document.getElementById('resetCanvas').onclick =
-			() => self.resetCanvas(self.currentLayerId, self.updateCanvasValueView.bind(self)); // use bind to keep the have correct scope
+			() => self.resetCanvas(self.currentLayerId, self.updateCanvasValueView.bind(self, self.currentLayerId)); // use bind to keep the have correct scope
 
 		/**
 		 * Handle mouse down or touch start
@@ -163,7 +144,7 @@ let CanvasGrid = {
 
 			let x = coordinate.x;
 			let y = coordinate.y;
-			self.drawBrush(self.currentLayerId, x, y, self.updateCanvasValueView.bind(self));
+			self.drawBrush(self.currentLayerId, x, y, self.updateCanvasValueView.bind(self, self.currentLayerId));
 			self.previousMousePos.x = x;
 			self.previousMousePos.y = y;
 		};
@@ -188,7 +169,7 @@ let CanvasGrid = {
 				let y = coordinate.y;
 				// console.log(`is moving`);
 				self.drawInBetween(self.previousMousePos.x, x, self.previousMousePos.y, y);
-				self.drawBrush(self.currentLayerId, x, y, self.updateCanvasValueView.bind(self));
+				self.drawBrush(self.currentLayerId, x, y, self.updateCanvasValueView.bind(self, self.currentLayerId));
 				self.previousMousePos.set(x, y);
 				// canvasGrid.ctx.lineTo(x, y); ctx.stroke();
 			}
@@ -206,7 +187,7 @@ let CanvasGrid = {
 		 */
 		let handleEnd = function (e) {
 			self.isDrawing = false;
-			self.updateCanvasValueView();
+			self.updateCanvasValueView(self.currentLayerId);
 		};
 		self.hitBox.onmouseup = function () {
 			if (!self.isMobile) {
@@ -229,23 +210,68 @@ let CanvasGrid = {
 		 * Event listener when windows is resized
 		 */
 		window.onresize = function () {
-			self.updateCurrentWidth();
-			self.updateCanvasDimensionValues();
+			self.isMobile = false;
+			self.updateCanvasSizeData();
 			self.resizeCanvases();
 			self.resetCanvas(self.currentLayerId);
 			self.drawGridBorder();
 			self.redraw();
-			self.updateCanvasValueView();
+			self.updateCanvasValueView(self.currentLayerId);
 		};
 	},
 
 	/* ================ FUNCTIONS ================ */
-	updateCanvasDimensionValues: function () {
-		this.pixelWidth = Math.round(this.currentWidth / this.gridSizeX);
-		this.pixelHeight = Math.round(this.currentWidth / this.gridSizeY);
 
-		this.previousMousePos = new Vector2();
-		this.maxSqrMagnitude = Vector2.prototype.sqrMagnitude(this.pixelWidth, 0, this.pixelHeight, 0);
+	/**
+	 * Namespacing functions that related to data only
+	 * not sure if this is the best approach...
+	 */
+	dataFunctions: {
+		/**
+		 * Update the current width of all canvases
+		 * for some reason cannot use getter() since the getCurrentWidth() will always 
+		 * give different value in the beginning (might be some loading changes)
+		 */
+		updateCurrentWidth: function (self) {
+			self = self ? self : this;
+			let rawWidth = self.drawingArea.getBoundingClientRect().width;
+			self.currentWidth = rawWidth - (rawWidth % self.gridSizeX);
+		},
+
+		updateCanvasDimensionValues: function (self) {
+			self = self ? self : this;
+
+			self.pixelWidth = Math.round(self.currentWidth / self.gridSizeX);
+			self.pixelHeight = Math.round(self.currentWidth / self.gridSizeY);
+
+			self.previousMousePos = new Vector2();
+			self.maxSqrMagnitude = Vector2.prototype.sqrMagnitude(self.pixelWidth, 0, self.pixelHeight, 0);
+		},
+
+		/**
+		 * Updating the list of pixel to get grid data from
+		 * usually the top left corner of the canvas
+		 */
+		updatePixelList: function (self) {
+			self = self ? self : this;
+
+			self.pixelList = [];
+			// get pixel list and draw border
+			for (let i = 0; i < self.gridSizeY; i++) {
+				for (let j = 0; j < self.gridSizeX; j++) {
+					self.pixelList.push([
+						j * self.pixelWidth,
+						i * self.pixelHeight
+					]);
+				}
+			}
+		},
+	},
+
+	updateCanvasSizeData: function () {
+		this.dataFunctions.updateCurrentWidth(this);
+		this.dataFunctions.updateCanvasDimensionValues(this);
+		this.dataFunctions.updatePixelList(this);
 	},
 
 	resizeCanvases: function () {
@@ -290,8 +316,12 @@ let CanvasGrid = {
 		this.lastGeneratedLayerId++;
 	},
 
-	updateCanvasValueView: function () {
-		let canvasValues = this.canvasValues = this.getCurrentCanvasValue();
+	/**
+	 * Update the view representation of the currentCanvasValue per grid
+	 * This will always get the latest state of canvas
+	 */
+	updateCanvasValueView: function (layerId) {
+		let canvasValues = this.getCanvasValue(layerId);
 		this.valueContext.clearRect(0, 0, this.currentWidth, this.currentWidth);
 
 		for (let i = 0; i < canvasValues.length; i++) {
@@ -351,7 +381,7 @@ let CanvasGrid = {
 		}
 
 		// console.log(this.pixelDrawn);
-		if (this.pixelDrawn[layerId][flatIndex] == 0) {
+		if (this.pixelDrawn[layerId][flatIndex] != 1) {
 			// console.log(`x2: ${x2}, y2: ${y2}`);
 			ctx.fillRect(x2, y2, this.pixelWidth, this.pixelHeight);
 			this.pixelDrawn[layerId][flatIndex] = 1;
@@ -372,7 +402,8 @@ let CanvasGrid = {
 		ctx.fillStyle = currentStyle;
 	},
 
-	getCanvasValue: function (ctx) {
+	getCanvasValue: function (layerId) {
+		let ctx = this.getLayerContext(layerId);
 		let arr = [];
 
 		this.pixelList.forEach(function (val) {
@@ -383,6 +414,9 @@ let CanvasGrid = {
 			let greyScale = (r + g + b) / 3 / 255;
 			arr.push(greyScale);
 		});
+
+		// set the data too
+		this.canvasValues[layerId] = arr;
 
 		return arr;
 	},
@@ -409,17 +443,25 @@ let CanvasGrid = {
 		}
 	},
 
+	/**
+	 * Redrawing the canvas based on last canvas value
+	 */
 	redraw: function () {
-		let canvasValues = this.canvasValues;
+		// loop through every layer
+		for (let layerId in this.canvasValues) {
+			let layerValues = this.canvasValues[layerId];
 
-		for (let i = 0; i < canvasValues.length; i++) {
-			if (canvasValues[i] != 1) {
-				continue;
+			// and redraw it
+			for (let i = 0; i < layerValues.length; i++) {
+				if (layerValues[i] != 1) {
+					continue;
+				}
+
+				let coord = this.get2dIndex(i);
+				let x = coord.x;
+				let y = coord.y;
+				this.drawSquarePixel(layerId, x, y, coordinate = 'grid');
 			}
-
-			let x = i % this.gridSizeX;
-			let y = Math.floor(i / this.gridSizeX);
-			this.drawSquarePixel(this.currentLayerId, x, y, coordinate = 'grid');
 		}
 	},
 
@@ -437,7 +479,6 @@ let CanvasGrid = {
 			}
 		}
 	},
-
 
 	/**
 	 * Return 1d index of 2d position
@@ -476,8 +517,14 @@ let CanvasGrid = {
 		}
 	},
 
-	// only draw the in between
-	// not drawing start and end
+	/**
+	 * only draw the in between
+	 * not drawing start and end
+	 * @param {any} x1
+	 * @param {any} x2
+	 * @param {any} y1
+	 * @param {any} y2
+	 */
 	drawInBetween: function (x1, x2, y1, y2) {
 		let distSqr = Vector2.prototype.sqrMagnitude(x1, x2, y1, y2);
 
@@ -494,11 +541,11 @@ let CanvasGrid = {
 	},
 
 	getCurrentCanvasValue: function () {
-		return this.getCanvasValue(this.currentCtx);
+		return this.getCanvasValue(this.currentLayerId);
 	},
 
 	resetCurrentCanvas: function () {
-		this.resetCanvas(this.currentLayerId, this.updateCanvasValueView.bind(this));
+		this.resetCanvas(this.currentLayerId, this.updateCanvasValueView.bind(this, this.currentLayerId));
 	},
 
 	getCursorPosition: function (event, eventType) {
@@ -641,7 +688,8 @@ let PredictData = {
 			// sending the data
 			data = [];
 			Util.sendPostData(data, self.configs.predictUrl, [{
-				"Content-type": "application/json;charset=UTF-8"}], 
+				"Content-type": "application/json;charset=UTF-8"
+			}],
 				function (response) {
 					self.predictResult.innerHTML = `The number is: ${response}!`;
 				}
