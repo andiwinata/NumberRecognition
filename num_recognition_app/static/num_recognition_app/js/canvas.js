@@ -503,8 +503,8 @@ let CanvasGrid = {
 
 	/**
 	 * Get 2d index from 1d index
-	 * @param  {} flatIndex
-	 * @param  {} coordinate='grid'
+	 * @param  {number} flatIndex
+	 * @param  {string} coordinate='grid'
 	 * @return {Object{x, y}}
 	 */
 	get2dIndex: function (flatIndex, coordinate = 'grid') {
@@ -520,10 +520,10 @@ let CanvasGrid = {
 	/**
 	 * only draw the in between
 	 * not drawing start and end
-	 * @param {any} x1
-	 * @param {any} x2
-	 * @param {any} y1
-	 * @param {any} y2
+	 * @param {number} x1
+	 * @param {number} x2
+	 * @param {number} y1
+	 * @param {number} y2
 	 */
 	drawInBetween: function (x1, x2, y1, y2) {
 		let distSqr = Vector2.prototype.sqrMagnitude(x1, x2, y1, y2);
@@ -637,10 +637,16 @@ let TrainingData = {
 		let hiddenClassName = "hidden--no-height";
 
 		if (visible) {
+			// adding animation
+			this.formMessage.style.maxHeight = this.formMessage.scrollHeight;
+			// remove the hidden class
 			this.formMessage.classList.remove(hiddenClassName);
 		} else {
 			let classes = this.formMessage.classList;
 			if (!classes.contains(hiddenClassName)) {
+				// adding animation
+				this.formMessage.style.maxHeight = 0;
+				// add hidden class
 				this.formMessage.classList.add(hiddenClassName);
 			}
 		}
@@ -674,6 +680,9 @@ let TrainingData = {
 
 };
 
+/**
+ * Handle number prediction
+ */
 let PredictData = {
 	configs: {
 		predictUrl: "/api/ml-model/predict",

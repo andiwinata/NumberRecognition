@@ -158,6 +158,7 @@ input {
     display: inline-flex;
     overflow: hidden;
     margin-bottom: 1rem;
+    transition: max-height ease-in-out 0.25s;
 }
 
 .predict-result {
@@ -210,10 +211,4 @@ input {
         width: 50%;
     }
 
-    .form__message {
-        // this will break in narrow screen such as iphone 5
-        // and not reliable if the text are longer than 1 line
-        max-height: 2rem; 
-        transition: max-height ease-in-out 0.5s;
-    }
 }
