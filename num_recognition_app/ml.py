@@ -21,8 +21,14 @@ class NumRecognitionMLModel:
         keys = self.training_data[0].keys()
         with open(self.file_path, 'a') as f:
             writer = csv.writer(f, delimiter=',', lineterminator='\n')
-            for train_data in self.training_data:
-                writer.writerow(train_data.values())
+
+            # write just one last row
+            train_data = self.training_data[-1]
+            writer.writerow([train_data[self.label_key], train_data[self.features_key]])
+
+            # write all data
+            # for train_data in self.training_data:
+            #     writer.writerow([train_data[self.label_key], train_data[self.features_key]])
             # writer = csv.DictWriter(f, keys)
             # writer.writeheader()
             # writer.writerows(self.training_data)

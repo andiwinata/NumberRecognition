@@ -601,7 +601,7 @@ let TrainingData = {
 
 			let intVal = parseInt(val);
 
-			if (intVal) {
+			if (Util.isInt(intVal)) {
 				let canvasValue = CanvasGrid.getCurrentCanvasValue();
 				let data = {
 					label: intVal,
@@ -735,6 +735,16 @@ let Util = {
 		let jsonData = JSON.stringify(data);
 		xhr.send(jsonData);
 	},
+
+	// Short-circuiting, and saving a parse operation
+	isInt: function (value) {
+        let x;
+        if (isNaN(value)) {
+            return false;
+        }
+        x = parseFloat(value);
+        return (x | 0) === x;
+    }
 }
 
 CanvasGrid.init();
