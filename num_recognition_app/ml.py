@@ -15,6 +15,14 @@ class NumRecognitionMLModel:
                 self.label_key not in data):
             raise ValueError("Training data is not in correct format")
 
+        try:
+            label_data = int(data[self.label_key])
+        except ValueError:
+            raise ValueError("Label data is not integer")
+
+        if not(0 <= label_data <= 9):
+            raise ValueError("Label data should always be between 0-9")
+
         self.training_data.append(data)
 
     def write_training_data(self):

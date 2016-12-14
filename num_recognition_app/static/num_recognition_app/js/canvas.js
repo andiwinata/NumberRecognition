@@ -601,7 +601,7 @@ let TrainingData = {
 
 			let intVal = parseInt(val);
 
-			if (Util.isInt(intVal)) {
+			if (Util.isInt(intVal) && intVal >= 0 && intVal < 10) {
 				let canvasValue = CanvasGrid.getCurrentCanvasValue();
 				let data = {
 					label: intVal,
@@ -621,7 +621,7 @@ let TrainingData = {
 
 				self.setFormMessageValue('Successfully added training data!', 'success');
 			} else {
-				self.setFormMessageValue("Only put integer as data label!", "alert");
+				self.setFormMessageValue("Only put integer 0-9 as data label!", "alert");
 			}
 
 			self.setFormMessageVisibility(true);
