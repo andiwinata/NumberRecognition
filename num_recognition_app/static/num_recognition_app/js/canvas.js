@@ -585,52 +585,66 @@ let TrainingData = {
 		this.storedData = [];
 
 		let self = this;
-		/**
-		 * Event listener for submit button
-		 */
-		document.getElementById('submitTrainForm').onclick = function () {
-			let val = self.trainDigitNumberInput.value;
 
-			// check if it contains valid string (not just empty whitespace)
-			// http://stackoverflow.com/questions/2031085/how-can-i-check-if-string-contains-characters-whitespace-not-just-whitespace
-			if (!/\S/.test(val)) {
-				self.setFormMessageValue("Hey don't leave the data label empty!", "alert");
-				self.setFormMessageVisibility(true);
-				return;
-			}
-
-			let intVal = parseInt(val);
-
-			if (Util.isInt(intVal) && intVal >= 0 && intVal < 10) {
-				let canvasValue = CanvasGrid.getCurrentCanvasValue();
-				let data = {
-					label: intVal,
-					features: canvasValue
-				};
-				// store data to array
-				self.storedData.push(data);
-
-				// reset the data and canvas
-				self.trainDigitNumberInput.value = '';
-				CanvasGrid.resetCurrentCanvas();
-
-				// sending the data
-				Util.sendPostData(data, self.configs.trainUrl, [{
-					"Content-type": "application/json;charset=UTF-8"
-				}]);
-
-				self.setFormMessageValue('Successfully added training data!', 'success');
-			} else {
-				self.setFormMessageValue("Only put integer 0-9 as data label!", "alert");
-			}
-
-			self.setFormMessageVisibility(true);
+		// listeners
+		document.getElementById('submitTrainForm').onclick = this.sendTrainData.bind(this);
+		document.getElementById('train-form').onsubmit = (e) => {
+			e.preventDefault();
+			self.sendTrainData();
 		};
 
 		this.trainDigitNumberInput.oninput = function () {
 			self.setFormMessageVisibility(false);
 		};
+	},
 
+	/**
+	 * Sending training data 
+	 * (label and parameters)
+	 */
+	sendTrainData: function () {
+		let val = this.trainDigitNumberInput.value;
+
+		// check if it contains valid string (not just empty whitespace)
+		// http://stackoverflow.com/questions/2031085/how-can-i-check-if-string-contains-characters-whitespace-not-just-whitespace
+		if (!/\S/.test(val)) {
+			this.setFormMessageValue("Hey don't leave the data label empty!", "alert");
+			this.setFormMessageVisibility(true);
+			return;
+		}
+
+		let intVal = parseInt(val);
+
+		if (Util.isInt(intVal) && intVal >= 0 && intVal < 10) {
+			let canvasValue = CanvasGrid.getCurrentCanvasValue();
+			let data = {
+				label: intVal,
+				features: canvasValue
+			};
+			// store data to array
+			this.storedData.push(data);
+
+			// reset the data and canvas
+			this.trainDigitNumberInput.value = '';
+			CanvasGrid.resetCurrentCanvas();
+
+			let self = this;
+
+			// sending the data
+			Util.sendPostData(data, this.configs.trainUrl, [{
+				"Content-type": "application/json;charset=UTF-8"
+			}], function (response) {
+				self.setFormMessageValue('Successfully added training data!', 'success');
+			}, function (error) {
+				self.setFormMessageValue(`Failed to add data, error: ${error}`, 'alert');
+			});
+
+			this.setFormMessageValue('Adding data...', 'success');
+		} else {
+			this.setFormMessageValue("Only put integer 0-9 as data label!", "alert");
+		}
+
+		this.setFormMessageVisibility(true);
 	},
 
 	setFormMessageVisibility: function (visible) {
@@ -691,24 +705,25 @@ let PredictData = {
 	init: function () {
 		this.submitPredictButton = document.getElementById("submitPredict");
 		this.predictResult = document.getElementById("predictResult");
-		let self = this;
 
-		this.submitPredictButton.onclick = function () {
-			// sending the data
-			data = [];
-			Util.sendPostData(data, self.configs.predictUrl, [{
-				"Content-type": "application/json;charset=UTF-8"
-			}],
-				function (response) {
-					self.predictResult.innerHTML = `The number is: ${response}!`;
-				}
-			);
-		};
+		this.submitPredictButton.onclick = this.sendPredictRequest.bind(this);
 	},
+
+	sendPredictRequest: function () {
+		// sending the data
+		data = [];
+		Util.sendPostData(data, this.configs.predictUrl, [{
+			"Content-type": "application/json;charset=UTF-8"
+		}], function (response) {
+			this.predictResult.innerHTML = `The number is: ${response}!`;
+		}, function (error) {
+			// handle error
+		});
+	}
 };
 
 let Util = {
-	sendPostData: function (data, url, headers, onSuccessResponse) {
+	sendPostData: function (data, url, headers, onSuccessResponse, onErrorReponse) {
 		let xhr = new XMLHttpRequest();
 
 		xhr.open('POST', url, true);
@@ -728,6 +743,9 @@ let Util = {
 					}
 				} else {
 					console.error(xhr.statusText);
+					if (typeof onErrorReponse === "function") {
+						onErrorReponse(xhr.statusText);
+					}
 				}
 			}
 		};
@@ -738,13 +756,13 @@ let Util = {
 
 	// Short-circuiting, and saving a parse operation
 	isInt: function (value) {
-        let x;
-        if (isNaN(value)) {
-            return false;
-        }
-        x = parseFloat(value);
-        return (x | 0) === x;
-    }
+		let x;
+		if (isNaN(value)) {
+			return false;
+		}
+		x = parseFloat(value);
+		return (x | 0) === x;
+	}
 }
 
 CanvasGrid.init();
