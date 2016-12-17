@@ -622,6 +622,7 @@ let TrainingData = {
 				features: canvasValue
 			};
 			// store data to array
+			// TODO: this might not neccessary
 			this.storedData.push(data);
 
 			// reset the data and canvas
@@ -631,7 +632,7 @@ let TrainingData = {
 			let self = this;
 
 			// sending the data
-			Util.sendPostData(data, this.configs.trainUrl, [{
+			Util.sendPostJsonData(data, this.configs.trainUrl, [{
 				"Content-type": "application/json;charset=UTF-8"
 			}], function (response) {
 				self.setFormMessageValue('Successfully added training data!', 'success');
@@ -711,8 +712,12 @@ let PredictData = {
 
 	sendPredictRequest: function () {
 		// sending the data
-		data = [];
-		Util.sendPostData(data, this.configs.predictUrl, [{
+		let canvasValue = CanvasGrid.getCurrentCanvasValue();
+		let data = {
+			features: canvasValue
+		};
+
+		Util.sendPostJsonData(data, this.configs.predictUrl, [{
 			"Content-type": "application/json;charset=UTF-8"
 		}], function (response) {
 			this.predictResult.innerHTML = `The number is: ${response}!`;
@@ -723,7 +728,7 @@ let PredictData = {
 };
 
 let Util = {
-	sendPostData: function (data, url, headers, onSuccessResponse, onErrorReponse) {
+	sendPostJsonData: function (data, url, headers, onSuccessResponse, onErrorReponse) {
 		let xhr = new XMLHttpRequest();
 
 		xhr.open('POST', url, true);
@@ -743,6 +748,7 @@ let Util = {
 					}
 				} else {
 					console.error(xhr.statusText);
+					console.error(xhr.responseText);
 					if (typeof onErrorReponse === "function") {
 						onErrorReponse(xhr.statusText);
 					}

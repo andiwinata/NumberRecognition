@@ -22,7 +22,7 @@ def test(request, format=None):
     return Response("hahaha")
 
 
-class MLModelAPI(APIView):
+class MLTraining(APIView):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     # parser_classes = (JSONParser,)
 
@@ -41,13 +41,15 @@ class MLModelAPI(APIView):
 
 class MLPredict(APIView):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
-    
-    def get(self, request, format=None):
-        return Response('something')
 
     def post(self, request, format=None):
         # do prediction with request post data
-        return Response('predicted number')
+        try:
+            result = ml.num_recognition_model.predict_data(request.data)
+        except ValueError as e:
+            raise CustomException(e, "Error", status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(result)
 
 
 class CustomException(APIException):
