@@ -15,3 +15,5 @@ sass-cache/
 # training data
 # http://stackoverflow.com/questions/32054684/can-i-gitignore-files-with-a-prefix
 # **/num_recognition_*.csv
+
+.ipynb*/

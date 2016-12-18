@@ -1,19 +1,21 @@
 import csv
+import ast
 import sklearn
+
 
 class NumRecognitionMLModel:
     features_key = "features"
     label_key = "label"
 
-    file_path = 'num_recognition_training_data.csv'
+    csv_file_path = 'num_recognition_training_data.csv'
 
     def __init__(self):
         self.training_data = []
 
     def add_training_data(self, data):
         if (not isinstance(data, dict) or
-                self.features_key not in data or
-                self.label_key not in data):
+                    self.features_key not in data or
+                    self.label_key not in data):
             raise ValueError("Training data is not in correct format")
 
         try:
@@ -21,13 +23,13 @@ class NumRecognitionMLModel:
         except ValueError:
             raise ValueError("Label data is not integer")
 
-        if not(0 <= label_data <= 9):
+        if not (0 <= label_data <= 9):
             raise ValueError("Label data should always be between 0-9")
 
         self.training_data.append(data)
 
     def write_training_data(self):
-        with open(self.file_path, 'a') as f:
+        with open(self.csv_file_path, 'a') as f:
             writer = csv.writer(f, delimiter=',', lineterminator='\n')
 
             # write just one last row
@@ -55,5 +57,25 @@ class NumRecognitionMLModel:
 
         # return the result
         return "predicted number!"
+
+    def train_csv_data(self):
+        csv_data = self.get_csv_data()
+        return csv_data[self.label_key]
+
+    def get_csv_data(self):
+        train_labels = []
+        train_features = []
+        with open(self.csv_file_path) as csvfile:
+            data_reader = csv.reader(csvfile, delimiter=',')
+            for row in data_reader:
+                train_labels.append(row[0])
+                features = ast.literal_eval(row[1])
+                train_features.append(features)
+
+        return {
+            self.label_key: train_labels,
+            self.features_key: train_features
+        }
+
 
 num_recognition_model = NumRecognitionMLModel()

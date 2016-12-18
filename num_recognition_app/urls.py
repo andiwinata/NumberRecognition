@@ -5,6 +5,7 @@ from num_recognition_app import views
 urlpatterns = [
     url(r'^$', views.index),
     url(r'^api/test', views.test),
-    url(r'^api/ml-model/train', views.MLTraining.as_view()),
-    url(r'^api/ml-model/predict', views.MLPredict.as_view())
+    url(r'^api/ml-model/training-data', views.MLTrainingData.as_view()),
+    url(r'^api/ml-model/predict', views.MLPredict.as_view()),
+    url(r'^api/ml-model/create-model', views.MLCreateModel.as_view()),
 ]

@@ -22,7 +22,7 @@ def test(request, format=None):
     return Response("hahaha")
 
 
-class MLTraining(APIView):
+class MLTrainingData(APIView):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     # parser_classes = (JSONParser,)
 
@@ -50,6 +50,18 @@ class MLPredict(APIView):
             raise CustomException(e, "Error", status.HTTP_400_BAD_REQUEST)
         else:
             return Response(result)
+
+
+class MLCreateModel(APIView):
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+
+    def get(self, request, format=None):
+        try:
+            trained_data = ml.num_recognition_model.train_csv_data()
+        except Exception as e:
+            raise CustomException(e, "Error", status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(trained_data)
 
 
 class CustomException(APIException):
