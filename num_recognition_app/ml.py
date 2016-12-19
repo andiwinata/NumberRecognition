@@ -1,6 +1,7 @@
 import csv
 import ast
-import sklearn
+from sklearn import svm, datasets
+import numpy as np
 
 
 class NumRecognitionMLModel:
@@ -8,6 +9,8 @@ class NumRecognitionMLModel:
     label_key = "label"
 
     csv_file_path = 'num_recognition_training_data.csv'
+
+    classifier = None
 
     def __init__(self):
         self.training_data = []
@@ -53,14 +56,51 @@ class NumRecognitionMLModel:
         if not (isinstance(feature_data, list) or isinstance(feature_data, tuple)):
             raise ValueError("Feature data is not list or tuple")
 
-        # do data prediction
+        feature_data = np.array(feature_data, dtype='uint8') * 16
+
+        prediction = -1
+        # do data prediction only if classifier is exist
+        if self.classifier:
+            prediction = self.classifier.predict([feature_data])[0]
 
         # return the result
-        return "predicted number!"
+        return prediction
+
+    def train_data(self, train_data_source='sklearn'):
+        """
+        Train data depending on the source
+
+        - sklearn = get data default from sklearn.datasets.load_digits()
+        - csv = get digit data from collected csv data
+        """
+
+        if train_data_source == 'sklearn':
+            self.train_sklearn_data()
+        else:
+            self.train_csv_data()
+
+        return 'Successfuly training data with train data source: {}'.format(train_data_source)
+
+    def train_sklearn_data(self):
+        digits = datasets.load_digits()
+        n_samples = len(digits.images)
+        data = digits.images.reshape((n_samples, -1))
+
+        self.classifier = svm.SVC(gamma=0.001)
+        self.classifier.fit(data, digits.target)
 
     def train_csv_data(self):
         csv_data = self.get_csv_data()
-        return csv_data[self.label_key]
+        labels = csv_data[self.label_key]
+        features = csv_data[self.features_key]
+
+        # convert to numpy array
+        labels = np.array(labels, dtype='uint8')
+        features = np.array(features, dtype='float_')
+
+        # create random state to maintain randomness
+        self.classifier = svm.SVC(gamma=0.001)
+        self.classifier.fit(features, labels)
 
     def get_csv_data(self):
         train_labels = []

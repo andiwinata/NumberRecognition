@@ -52,16 +52,23 @@ class MLPredict(APIView):
             return Response(result)
 
 
-class MLCreateModel(APIView):
+class MLTrainModel(APIView):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
 
     def get(self, request, format=None):
+        params = request.query_params
+        train_method_param_key = 'train-data-source'
+
         try:
-            trained_data = ml.num_recognition_model.train_csv_data()
+            if train_method_param_key in params:
+                result = ml.num_recognition_model.train_data(params[train_method_param_key])
+            else:
+                # use default training
+                result = ml.num_recognition_model.train_data()
         except Exception as e:
             raise CustomException(e, "Error", status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(trained_data)
+            return Response(result)
 
 
 class CustomException(APIException):

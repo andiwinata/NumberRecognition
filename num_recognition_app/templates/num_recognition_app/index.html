@@ -36,10 +36,19 @@
 		<div class="panel md-half-width">
 			<div class="tab-wrapper">
 				<div id="tabs" class="tabs">
-					<div class="tab" data-tab-target="trainArea">Train Data</div>
 					<div class="tab" data-tab-target="predictArea">Predict Data</div>
+					<div class="tab" data-tab-target="trainArea">Train Data</div>
 				</div>
 				<div class="tabs-contents">
+					<section id="predictArea">
+						<h3>Predict!</h3>
+						<div id="predictResult" class="predict-result">
+							The number is: 3!
+						</div>
+						<form id="predict-form">
+							<button class="button expanded" type="button" id="submitPredict">Predict!</button>
+						</form>
+					</section>
 					<section id="trainArea">
 						<h3>Train data</h3>
 						<form id="train-form">
@@ -49,15 +58,6 @@
 							</div>
 							<div id="trainFormMessage" class="form__message success hidden--no-height">Successfully added!</div>
 							<button class="button expanded" type="button" id="submitTrainForm">Submit</button>
-						</form>
-					</section>
-					<section id="predictArea">
-						<h3>Predict!</h3>
-						<div id="predictResult" class="predict-result">
-							The number is: 3!
-						</div>
-						<form id="predict-form">
-							<button class="button expanded" type="button" id="submitPredict">Predict!</button>
 						</form>
 					</section>
 				</div>

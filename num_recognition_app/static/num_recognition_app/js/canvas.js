@@ -53,11 +53,12 @@ let CanvasGrid = {
 
 	initSettings: function () {
 		// changeable variables
-		this.gridSizeX = 10;
-		this.gridSizeY = 10;
+		this.gridSizeX = 8;
+		this.gridSizeY = 8;
 		this.brushSize = [
-			[1, 1],
-			[1, 1]
+			[1]
+			// [1, 1],
+			// [1, 1]
 		];
 		this.zeroColor = "#000000";
 		this.oneColor = "#ffffff";
@@ -100,8 +101,6 @@ let CanvasGrid = {
 		// this is similar to pixelDrawn but it only care about 1 layer for now...
 		// this is used for redraw() even though a bit redundant with pixelDrawn
 		this.canvasValues = {};
-
-		this.storedData = [];
 
 		this.hitBox = document.getElementById('topCanvas');
 		this.borderContext = document.getElementById('borderCanvas').getContext('2d');
@@ -582,7 +581,6 @@ let TrainingData = {
 		this.formMessageTypes = { "success": "success", "alert": "alert" };
 
 		this.trainDigitNumberInput = document.getElementById('trainDigitNumber');
-		this.storedData = [];
 
 		let self = this;
 
@@ -621,9 +619,6 @@ let TrainingData = {
 				label: intVal,
 				features: canvasValue
 			};
-			// store data to array
-			// TODO: this might not neccessary
-			this.storedData.push(data);
 
 			// reset the data and canvas
 			this.trainDigitNumberInput.value = '';
