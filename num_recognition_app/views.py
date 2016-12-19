@@ -17,14 +17,8 @@ def index(request):
     return render(request, 'num_recognition_app/index.html')
 
 
-@api_view(['GET'])
-def test(request, format=None):
-    return Response("hahaha")
-
-
 class MLTrainingData(APIView):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
-    # parser_classes = (JSONParser,)
 
     def get(self, request, format=None):
         return Response(ml.num_recognition_model.training_data)
