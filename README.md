@@ -58,7 +58,7 @@ The response from server should return indication that the model has been succes
 ##### Train Data #####
 
 * *Train Data* will POST pixel data and digit data as `label` and `features` to the `http://root_url/api/ml-model/training-data`. The server will then store it in list as well as append it to csv file.
-* To see stored `label` and `features` pair in list, send a GET request to `http://root_url/api/ml-model/training-data`
+* To see stored `label` and `features` pair in in-memory-python-list, send a GET request to `http://root_url/api/ml-model/training-data`. You can see the stored training data in the csv file by directly going to the `num_recognition_training_data.csv` at the root level of project
 
 ___
 
