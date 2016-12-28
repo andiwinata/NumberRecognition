@@ -715,7 +715,8 @@ let PredictData = {
 		Util.sendPostJsonData(data, this.configs.predictUrl, [{
 			"Content-type": "application/json;charset=UTF-8"
 		}], function (response) {
-			this.predictResult.innerHTML = `The number is: ${response}!`;
+			let extra = response == -1 ? "Probably you need to train the model first" : "";
+			this.predictResult.innerHTML = `The number is: ${response}!<br /><small>${extra}</small>`;
 		}, function (error) {
 			// handle error
 		});

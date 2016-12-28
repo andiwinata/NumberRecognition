@@ -190,7 +190,7 @@ input {
 @media all and (min-width: $medium-screen) and (orientation: landscape) {
     body {
         background-image: linear-gradient(rgba(0, 0, 0, 0.5), 
-                rgba($primary-color, 0.5)), 
+                rgba(0, 0, 0, 0.5)), 
                 url('../images/dark_material.jpg');
         background-size: cover;
     }
