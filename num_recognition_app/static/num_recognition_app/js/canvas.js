@@ -573,7 +573,7 @@ let CanvasGrid = {
  */
 let TrainingData = {
 	configs: {
-		trainUrl: "/api/ml-model/train",
+		trainUrl: "/api/ml-model/training-data",
 	},
 
 	init: function () {

@@ -86,7 +86,7 @@ class NumRecognitionMLModel:
         else:
             self.train_csv_data()
 
-        return 'Successfuly training data with train data source: {}'.format(train_data_source)
+        return 'Successfuly trained the model with training data: {}'.format(train_data_source)
 
     def train_sklearn_data(self):
         """
