@@ -4,6 +4,8 @@
 
 Project name: **Number Recognition**
 
+Video showcase: https://www.youtube.com/watch?v=Emt7cQfvIz8
+
 This project is about predicting drawn number in HTML canvas (pixel art style) using machine learning.
 Can be seen as digit recognition project.
 
